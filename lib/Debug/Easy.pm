@@ -27,7 +27,7 @@ BEGIN {
     require Exporter;
 
     # set the version for version checking
-    our $VERSION = 1.17;
+    our $VERSION = 1.18;
 
     # Inherit from Exporter to export functions and variables
     our @ISA = qw(Exporter);
@@ -133,7 +133,7 @@ END {    # We spit out one last message before we die, the total execute time.
 
 =head2 B<new>
 
-The parameter names are case insensitive as of Version 0.04.
+* The parameter names are case insensitive as of Version 0.04.
 
 =over 4
 
@@ -335,7 +335,6 @@ B<unix>
 =cut
 
 sub new {
-
     # This module uses the Log::Fast library heavily.  Many of the
     # Log::Fast variables and features can work here.  See the perldocs
     # for Log::Fast for specifics.
@@ -581,7 +580,7 @@ sub _send_to_logger {      # This actually simplifies the previous method ... se
     my $prefix   = $self->{$level . '-PREFIX'} . '';    # A copy not a pointer
     my $forked   = ($PARENT ne $$) ? 'C' : 'P';
     my $threaded = 'PT-';
-    if ($Config{'useithreads'}) { # Do eval so non-threaded perl's don't whine
+    if (exists($Config{'useithreads'}) && $Config{'useithreads'}) { # Do eval so non-threaded perl's don't whine
         eval(q(
             my $tid   = threads->tid();
             $threaded = ($tid > 0) ? sprintf('T%02d',$tid) : 'PT-';

@@ -10,7 +10,7 @@ my $build = Module::Build->new(
     },
     'requires'       => {
         'perl'            => '5.6.1',
-        'Log::Fast'       => '>= 1.03',
+        'Log::Fast'       => '>= 1.00',
         'Time::HiRes'     => '>= 1.9715',
         'Term::ANSIColor' => '>= 4.00',
         'DateTime'        => '>= 1.18',
@@ -32,7 +32,7 @@ my $build = Module::Build->new(
 
 print "\nIs this a threaded Perl? ...";
 if ($Config{'useithreads'}) {
-    print "YES, good\n\n";
+    print "YES, good, no changes neeed be done\n\n";
 } else {
     print "NO, changes needed\nRemoving threading features ... ";
     my $module = slurp_file('lib/Debug/Easy.pm');

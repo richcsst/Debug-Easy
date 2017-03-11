@@ -217,13 +217,17 @@ Revision history for Debug-Easy
 
         Fixed thread labeling sprintf issue
 
-1.16    Removed the now defunct "$Modules" from the exportable variables.
+1.16    November 22, 2016
+
+        Removed the now defunct "$Modules" from the exportable variables.
 
         Fixed the code in the "examples" directory.  I am terribly sorry
         these were not working.  I have brought them up to date, and they
         should be functioning properly.
 
-1.17    Added "Best" module dependency.  This was added to allow for automatic
+1.17    December 18, 2016
+
+        Added "Best" module dependency.  This was added to allow for automatic
         loading of "Data::Dumper::Simple" or "Data::Dumper", depending on what
         the user has installed in their system.  The "Data::Dumper" package is
         included with the Perl core installation.  So at least "Data::Dumper"
@@ -233,3 +237,7 @@ Revision history for Debug-Easy
         If "Data::Dumper" nor "Data::Dumper::Simple" is not your preference
         for variable structure representation, then you will have to load
         your own and use it to generate the debugging output desired.
+
+1.18    March 10, 2017
+
+        Some minor documentation and threads check changes.

@@ -6,7 +6,7 @@ use Config;
 
 print "\nIs this a threaded Perl? ...";
 if ($Config{'useithreads'}) {
-    print "YES, good\n\n";
+    print "YES, good no changes needed\n\n";
 } else {
     print "NO, changes required\nRemoving threading features ... ";
     my $module = slurp_file('lib/Debug/Easy.pm');
@@ -33,7 +33,7 @@ if (WriteMakefile(
         'Test::More' => 0.44,
     },
     PREREQ_PM      => {
-        'Log::Fast'       => 0,
+        'Log::Fast'       => 1.00,
         'Time::HiRes'     => 1.9715,
         'Term::ANSIColor' => 4.00,
         'DateTime'        => 1.18,
