@@ -44,6 +44,8 @@ You can also look for information at:
 
 * **Search CPAN** -  http://search.cpan.org/dist/Debug-Easy/
 
+* **GitHub** - https://github.com/richcsst/Debug-Easy.git
+
 ## LICENSE AND COPYRIGHT
 
 Copyright (C) 2013 Richard Kelsch
