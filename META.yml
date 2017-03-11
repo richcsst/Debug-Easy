@@ -1,0 +1,27 @@
+---
+abstract: 'A Handy Debugging Module With Colorized Output and Formatting'
+author:
+  - 'Richard Kelsch <rich@rk-internet.com>'
+build_requires:
+  Test::More: '0'
+configure_requires:
+  ExtUtils::MakeMaker: '0'
+dynamic_config: 1
+generated_by: 'ExtUtils::MakeMaker version 7.04, CPAN::Meta::Converter version 2.150001'
+license: unknown
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: Debug-Easy
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  DateTime: '0'
+  File::Basename: '0'
+  Log::Fast: '1'
+  Term::ANSIColor: '4'
+  Time::HiRes: '1'
+  perl: '5.006'
+version: 0.33
