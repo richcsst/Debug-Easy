@@ -27,7 +27,7 @@ BEGIN {
     require Exporter;
 
     # set the version for version checking
-    our $VERSION = 1.18;
+    our $VERSION = '1.18.1';
 
     # Inherit from Exporter to export functions and variables
     our @ISA = qw(Exporter);
