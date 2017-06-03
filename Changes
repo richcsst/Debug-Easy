@@ -245,3 +245,7 @@ Revision history for Debug-Easy
 1.18.1  March 10, 2017
 
         Added GitHub info to the documentation.
+
+1.18.2  June 3, 2017
+
+        Fixed the tests.

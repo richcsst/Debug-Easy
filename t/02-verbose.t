@@ -4,9 +4,11 @@ use strict;
 use warnings FATAL => 'all';
 use Test::More;
 
-plan tests => 19;
+plan tests => 20;
 
-use Debug::Easy;
+BEGIN {
+    use_ok('Debug::Easy') || print "Bail out! Can't load Debug::Easy!\n";
+}
 
 $| = 1;
 

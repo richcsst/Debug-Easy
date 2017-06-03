@@ -4,9 +4,11 @@ use strict;
 use warnings FATAL => 'all';
 use Test::More;
 
-plan tests => 114;    # 6 * 19
+plan tests => 115;    # 6 * 19
 
-use Debug::Easy;
+BEGIN {
+    use_ok('Debug::Easy') || print "Bail out! Can't load Debug::Easy!\n";
+}
 my @LogLevel = qw( ERR WARN NOTICE INFO DEBUG DEBUGMAX );
 my @CodeLevel = ('[ ERROR ]', '[WARNING]', '[NOTICE ]', '[ INFO  ]', '[ DEBUG ]', '[-DEBUG-]');
 
