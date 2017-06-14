@@ -2,9 +2,7 @@
 use 5.008;
 use strict;
 use warnings FATAL => 'all';
-use Test::More;
-
-plan tests => 115;    # 6 * 19
+use Test::More tests => 115;
 
 BEGIN {
     use_ok('Debug::Easy') || print "Bail out! Can't load Debug::Easy!\n";

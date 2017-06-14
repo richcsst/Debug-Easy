@@ -249,3 +249,7 @@ Revision history for Debug-Easy
 1.18.2  June 3, 2017
 
         Fixed the tests.
+
+1.18.3  June 14, 2017
+
+        Apparently the tests were still flakey.  This should fix.
