@@ -31,7 +31,7 @@ BEGIN {
     require Exporter;
 
     # set the version for version checking
-    our $VERSION = '1.18.3';
+    our $VERSION = '1.19';
 
     # Inherit from Exporter to export functions and variables
     our @ISA = qw(Exporter);
@@ -42,6 +42,9 @@ BEGIN {
     # Functions and variables which can be optionally exported
     our @EXPORT_OK = qw(@Levels);
 } ## end BEGIN
+
+$Data::Dumper::Sortkeys = TRUE;
+$Data::Dumper::Purity   = TRUE;
 
 # This can be optionally exported for whatever
 our @Levels = qw( ERR WARN NOTICE INFO VERBOSE DEBUG DEBUGMAX );
