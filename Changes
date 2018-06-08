@@ -264,3 +264,7 @@ Revision history for Debug-Easy
         
         Data::Dumper::Simple takes far too long to start up.  It's nice output
         isn't worth the execution delay.
+
+1.21    June 06, 2018
+
+        Added "%Epoch%" prefix value
