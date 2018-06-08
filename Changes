@@ -268,3 +268,8 @@ Revision history for Debug-Easy
 1.21    June 06, 2018
 
         Added "%Epoch%" prefix value
+
+1.22    June 08, 2018
+
+        Make it multi-object aware.  Now you can instantiate more than one
+        instance using different file handles.

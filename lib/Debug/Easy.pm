@@ -33,7 +33,7 @@ BEGIN {
     require Exporter;
 
     # set the version for version checking
-    our $VERSION = '1.21';
+    our $VERSION = '1.22';
 
     # Inherit from Exporter to export functions and variables
     our @ISA = qw(Exporter);
@@ -58,7 +58,6 @@ for (my $count = 0 ; $count < scalar(@Levels) ; $count++) {
 }
 
 our %ANSILevel;                            # Global debug level colorized messages hash.  It will be filled in later.
-our $LOG         = Log::Fast->global();    # Let's snag the Log::Fast object.
 my $MASTERSTART = time;                    # Script start timestamp.
 my ($SCRIPTNAME, $SCRIPTPATH, $suffix) = fileparse($0);
 my $PARENT      = $$;                     # Get the parent process ID
@@ -131,12 +130,13 @@ Generally all you need are the defaults and you are ready to go.
 
 =cut
 
-END {    # We spit out one last message before we die, the total execute time.
+sub DESTROY {    # We spit out one last message before we die, the total execute time.
+    my $self = shift;
     my $bench = colored(['bright_cyan'], sprintf('%06s', sprintf('%.02f', (time - $MASTERSTART))));
     my $name = $SCRIPTNAME;
     $name .= ' [child]' if ($PARENT ne $$);
-    $LOG->DEBUG(' %s%s %s', $bench, $ANSILevel{'DEBUG'}, colored(['black on_white'], "---- $name complete ----")) if (defined($ANSILevel{'DEBUG'}) && defined($LOG));
-} ## end END
+    $self->DEBUG(' %s%s %s', $bench, $ANSILevel{'DEBUG'}, colored(['black on_white'], "---- $name complete ----"));
+}
 
 =head1 B<METHODS>
 
@@ -364,7 +364,7 @@ sub new {
         'NOTICE_LastStamp'   => time,                                    # Initialize the NOTICE benchmark
         'DEBUG_LastStamp'    => time,                                    # Initialize the DEBUG benchmark
         'DEBUGMAX_LastStamp' => time,                                    # Initialize the DEBUGMAX benchmark
-        'LOG'                => $LOG,                                    # Pull in the global Log::Fast object.
+        'LOG'                => Log::Fast->global(),                     # Pull in the global Log::Fast object.
         'Color'              => TRUE,                                    # Default to colorized output
         'DateStamp'          => colored(['yellow'], '%date%'),
         'TimeStamp'          => colored(['yellow'], '%time%'),
@@ -407,18 +407,22 @@ sub new {
 
     # This instructs the ANSIColor library to turn off coloring,
     # if the Color attribute is set to zero.
-    $ENV{'ANSI_COLORS_DISABLED'} = TRUE if ($self->{'COLOR'} =~ /0|FALSE|OFF|NO/i);
-
-    # If COLOR is FALSE, then clear color data from ANSILEVEL, as these were
-    # defined before color was turned off.
-    $self->{'ANSILEVEL'} = {
-        'ERR'      => '[ ERROR ]',
-        'WARN'     => '[WARNING]',
-        'NOTICE'   => '[NOTICE ]',
-        'INFO'     => '[ INFO  ]',
-        'DEBUG'    => '[ DEBUG ]',
-        'DEBUGMAX' => '[DEBUGMX]',
-    } if ($self->{'COLOR'} =~ /0|FALSE|OFF|NO/i);
+    if ($self->{'COLOR'} =~ /0|FALSE|OFF|NO/i) {
+        $ENV{'ANSI_COLORS_DISABLED'} = TRUE;
+        # If COLOR is FALSE, then clear color data from ANSILEVEL, as these were
+        # defined before color was turned off.
+        $self->{'ANSILEVEL'} = {
+            'ERR'      => '[ ERROR ]',
+            'WARN'     => '[WARNING]',
+            'NOTICE'   => '[NOTICE ]',
+            'INFO'     => '[ INFO  ]',
+            'DEBUG'    => '[ DEBUG ]',
+            'DEBUGMAX' => '[DEBUGMX]',
+        };
+        $self->{'DATESTAMP'} = '%date%';
+        $self->{'TIMESTAMP'} = '%time%';
+        $self->{'EPOCH'}     = '%epoch%';
+    }
     %ANSILevel = %{$self->{'ANSILEVEL'}};
 
     foreach my $lvl (@Levels) {
