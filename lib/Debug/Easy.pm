@@ -33,7 +33,7 @@ BEGIN {
     require Exporter;
 
     # set the version for version checking
-    our $VERSION = '1.22';
+    our $VERSION = '1.23';
 
     # Inherit from Exporter to export functions and variables
     our @ISA = qw(Exporter);
@@ -57,10 +57,8 @@ for (my $count = 0 ; $count < scalar(@Levels) ; $count++) {
     $LevelLogic{$Levels[$count]} = $count;
 }
 
-our %ANSILevel;                            # Global debug level colorized messages hash.  It will be filled in later.
-my $MASTERSTART = time;                    # Script start timestamp.
+our $PARENT = $$; # This needs to be defined at the very beginning before new
 my ($SCRIPTNAME, $SCRIPTPATH, $suffix) = fileparse($0);
-my $PARENT      = $$;                     # Get the parent process ID
 our $TIMEZONE    = DateTime::TimeZone->new(name => 'local');
 
 =head1 NAME
@@ -131,11 +129,11 @@ Generally all you need are the defaults and you are ready to go.
 =cut
 
 sub DESTROY {    # We spit out one last message before we die, the total execute time.
-    my $self = shift;
-    my $bench = colored(['bright_cyan'], sprintf('%06s', sprintf('%.02f', (time - $MASTERSTART))));
-    my $name = $SCRIPTNAME;
+    my $self  = shift;
+    my $bench = colored(['bright_cyan'], sprintf('%06s', sprintf('%.02f', (time - $self->{'MASTERSTART'}))));
+    my $name  = $SCRIPTNAME;
     $name .= ' [child]' if ($PARENT ne $$);
-    $self->DEBUG(' %s%s %s', $bench, $ANSILevel{'DEBUG'}, colored(['black on_white'], "---- $name complete ----"));
+    $self->DEBUG([$bench . ' ' . colored(['block on_white'],"---- $name complete ----")]);
 }
 
 =head1 B<METHODS>
@@ -356,7 +354,7 @@ sub new {
         'Type'               => 'fh',                                    # Default is a filehandle
         'Path'               => '/var/log',                              # Default path should type be unix
         'FileHandle'         => \*STDERR,                                # Default filehandle is STDERR
-        'MasterStart'        => $MASTERSTART,                            # Pull in the script start timestamp
+        'MasterStart'        => time,
         'ANY_LastStamp'      => time,                                    # Initialize main benchmark
         'ERR_LastStamp'      => time,                                    # Initialize the ERR benchmark
         'WARN_LastStamp'     => time,                                    # Initialize the WARN benchmark
@@ -364,7 +362,7 @@ sub new {
         'NOTICE_LastStamp'   => time,                                    # Initialize the NOTICE benchmark
         'DEBUG_LastStamp'    => time,                                    # Initialize the DEBUG benchmark
         'DEBUGMAX_LastStamp' => time,                                    # Initialize the DEBUGMAX benchmark
-        'LOG'                => Log::Fast->global(),                     # Pull in the global Log::Fast object.
+        'LOG'                => Log::Fast->new(),                        # Pull in the global Log::Fast object.
         'Color'              => TRUE,                                    # Default to colorized output
         'DateStamp'          => colored(['yellow'], '%date%'),
         'TimeStamp'          => colored(['yellow'], '%time%'),
@@ -373,6 +371,7 @@ sub new {
         'Lines-Padding'      => -2,
         'Subroutine-Padding' => 0,
         'Line-Padding'       => 0,
+        'PARENT'             => $$,
         'Prefix'             => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
         'DEBUGMAX-Prefix'    => '%Date% %Time% %Benchmark% %Loglevel%[%Module%][%Lines%] ',
         'Filename'           => '[' . colored(['magenta'], $filename) . ']',
@@ -423,7 +422,6 @@ sub new {
         $self->{'TIMESTAMP'} = '%time%';
         $self->{'EPOCH'}     = '%epoch%';
     }
-    %ANSILevel = %{$self->{'ANSILEVEL'}};
 
     foreach my $lvl (@Levels) {
         $self->{"$lvl-PREFIX"} = $self->{'PREFIX'} unless (exists($self->{"$lvl-PREFIX"}) && defined($self->{"$lvl-PREFIX"}));
@@ -606,7 +604,7 @@ sub _send_to_logger {      # This actually simplifies the previous method ... se
     }
 
     $prefix =~ s/\%PID\%/$$/g;
-    $prefix =~ s/\%Loglevel\%/$ANSILevel{$level}/g;
+    $prefix =~ s/\%Loglevel\%/$self->{'ANSILevel'}->{$level}/g;
     $prefix =~ s/\%Lines\%/$cline/g;
     $prefix =~ s/\%Lastline\%/$sline/g;
     $prefix =~ s/\%Subroutine\%/$shortsub/g;
@@ -638,7 +636,7 @@ sub _send_to_logger {      # This actually simplifies the previous method ... se
     }
 } ## end sub _send_to_logger
 
-=head2 b<ERR> or B<ERROR>
+=head2 B<ERR> or B<ERROR>
 
 Sends ERROR level debugging output to the log.  Errors are always shown.
 

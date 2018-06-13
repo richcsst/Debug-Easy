@@ -273,3 +273,8 @@ Revision history for Debug-Easy
 
         Make it multi-object aware.  Now you can instantiate more than one
         instance using different file handles.
+
+1.23    June 12, 2018
+
+        It seems the Log::Fast documentation on instantiating objects is vague
+        Changed "global" to "new".
