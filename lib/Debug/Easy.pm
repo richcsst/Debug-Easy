@@ -28,7 +28,7 @@ BEGIN {
     require Exporter;
 
     # set the version for version checking
-    our $VERSION = '2.01';
+    our $VERSION = '2.02';
 
     # Inherit from Exporter to export functions and variables
     our @ISA = qw(Exporter);
@@ -545,7 +545,8 @@ sub _send_to_logger {      # This actually simplifies the previous method ... se
     my $sline      = shift;
     my $shortsub   = shift;
 
-    my $dt       = DateTime->now('time_zone' => $self->{'TIMEZONE'});
+    my $timezone = $self->{'TIMEZONE'} || DateTime::TimeZone->new(name => 'local');
+    my $dt       = DateTime->now('time_zone' => $timezone);
     my $Date     = $dt->ymd();
     my $Time     = $dt->hms();
     my $prefix   = $self->{$level . '-PREFIX'} . '';    # A copy not a pointer
