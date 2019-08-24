@@ -6,6 +6,7 @@
 
 use strict;
 
+use lib '.';
 use Debug::Easy;
 use X1::X2;
 

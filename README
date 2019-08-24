@@ -19,7 +19,9 @@ OR you can use the older ExtUtils::MakeMaker method:
 SAMPLE CODE
 
 The "examples" directory in the tar package has two code examples on
-how to use this module.
+how to use this module.  Note, older versions did not have the
+"use lib '.';" and may break on newer Perls.  These new examples have
+that issue fixed.
 
 SUPPORT AND DOCUMENTATION
 
