@@ -10,7 +10,7 @@ use lib '.';
 use Debug::Easy;
 use X1::X2;
 
-my $D = Debug::Easy->new('LogLevel' => 'DEBUGMAX', 'Color' => 1, 'CPADDING' => -20);
+my $D = Debug::Easy->new('LogLevel' => 'DEBUGMAX', 'Color' => 1, 'CPADDING' => -25);
 
 $D->DEBUGMAX(['First a local message']);
 firstlevel();

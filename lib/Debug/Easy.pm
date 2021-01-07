@@ -1,6 +1,6 @@
 #############################################################################
 #################         Easy Debugging Module        ######################
-################# Copyright 2013 - 2018 Richard Kelsch ######################
+################# Copyright 2013 - 2019 Richard Kelsch ######################
 #################          All Rights Reserved         ######################
 #############################################################################
 ####### Licensing information available near the end of this file. ##########
@@ -19,7 +19,7 @@ use Term::ANSIColor;
 use Time::HiRes qw(time);
 use File::Basename;
 
-use Data::Dumper;
+use Data::Dumper; $Data::Dumper::Sortkeys = TRUE; $Data::Dumper::Purity = TRUE;
 
 use Config;
 use threads;
@@ -28,7 +28,7 @@ BEGIN {
     require Exporter;
 
     # set the version for version checking
-    our $VERSION = '2.03';
+    our $VERSION = '2.04';
 
     # Inherit from Exporter to export functions and variables
     our @ISA = qw(Exporter);
@@ -39,9 +39,6 @@ BEGIN {
     # Functions and variables which can be optionally exported
     our @EXPORT_OK = qw(@Levels);
 } ## end BEGIN
-
-$Data::Dumper::Sortkeys = TRUE;
-$Data::Dumper::Purity   = TRUE;
 
 # This can be optionally exported for whatever
 our @Levels = qw( ERR WARN NOTICE INFO VERBOSE DEBUG DEBUGMAX );
@@ -760,7 +757,7 @@ This program is free software; you can redistribute it and/or modify it under th
 
 =head1 B<VERSION>
 
-Version 2.00    (June 13, 2018)
+Version 2.04    (September 3, 2019)
 
 =head1 B<BUGS>
 
@@ -772,6 +769,9 @@ You can find documentation for this module with the perldoc command.
 
 C<perldoc Debug::Easy>
 
+or if you have "man" installed, then
+
+C<man Debug::Easy>
 
 You can also look for information at:
 
@@ -813,7 +813,7 @@ If you have any features you wish added, or functionality improved or changed, t
 
 =head1 B<LICENSE AND COPYRIGHT>
 
-Copyright 2013-2018 Richard Kelsch.
+Copyright 2013-2019 Richard Kelsch.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the the Artistic License (2.0). You may obtain a copy of the full license at:
 
