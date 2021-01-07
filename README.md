@@ -36,8 +36,6 @@ perldoc command.
 
 You can also look for information at:
 
-* **RT, CPAN's request tracker** (_report bugs here_) - http://rt.cpan.org/NoAuth/Bugs.html?Dist=Debug-Easy
-
 * **AnnoCPAN, Annotated CPAN documentation** - http://annocpan.org/dist/Debug-Easy
 
 * **CPAN Ratings** - http://cpanratings.perl.org/d/Debug-Easy
