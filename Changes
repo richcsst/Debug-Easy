@@ -300,3 +300,9 @@ Revision history for Debug-Easy
 
         Apparently the procedure field is blank on some main calls.  This fix
         should take care of that.
+
+2.04    September 3, 2019
+
+2.05    April 5, 2021
+
+        Added Data::Dumper debug variable "Deparse"

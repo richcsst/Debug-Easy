@@ -1,6 +1,6 @@
 #############################################################################
 #################         Easy Debugging Module        ######################
-################# Copyright 2013 - 2019 Richard Kelsch ######################
+################# Copyright 2013 - 2021 Richard Kelsch ######################
 #################          All Rights Reserved         ######################
 #############################################################################
 ####### Licensing information available near the end of this file. ##########
@@ -19,7 +19,7 @@ use Term::ANSIColor;
 use Time::HiRes qw(time);
 use File::Basename;
 
-use Data::Dumper; $Data::Dumper::Sortkeys = TRUE; $Data::Dumper::Purity = TRUE;
+use Data::Dumper; $Data::Dumper::Sortkeys = TRUE; $Data::Dumper::Purity = TRUE; $Data::Dumper::Deparse = TRUE;
 
 use Config;
 use threads;
@@ -28,7 +28,7 @@ BEGIN {
     require Exporter;
 
     # set the version for version checking
-    our $VERSION = '2.04';
+    our $VERSION = '2.05';
 
     # Inherit from Exporter to export functions and variables
     our @ISA = qw(Exporter);
@@ -751,13 +751,11 @@ OR you can use the old ExtUtils::MakeMaker method:
 
 Richard Kelsch <rich@rk-internet.com>
 
-Copyright 2013-2018 Richard Kelsch, All Rights Reserved.
-
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =head1 B<VERSION>
 
-Version 2.04    (September 3, 2019)
+Version 2.05    (April 5, 2021)
 
 =head1 B<BUGS>
 
@@ -803,17 +801,13 @@ L<http://search.cpan.org/dist/Debug-Easy/>
 
 =head1 B<AUTHOR COMMENTS>
 
-Earlier versions of this module (pre version 1.0), were difficult to code with, and not "Easy" as the name implied.  Version 1.x+ has addressed the issues brought forward by some users (and reviewers), and has made the module truely easy to use.
-
-Version 2.0 promises to be even simpler, with fewer prerequisites on installation.  Specifically the requirement for "Log::Fast" will be removed, and this module will exclusively handle logging, as I believe it should.
-
 I coded this module because it filled a gap when I was working for a major chip manufacturing company.  It gave the necessary output the other coders asked for, and fulfilled a need.  It has grown far beyond those days, and I use it every day in my coding work.
 
 If you have any features you wish added, or functionality improved or changed, then I welcome them, and will very likely incorporate them sooner than you think.
 
 =head1 B<LICENSE AND COPYRIGHT>
 
-Copyright 2013-2019 Richard Kelsch.
+Copyright 2013-2021 Richard Kelsch.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the the Artistic License (2.0). You may obtain a copy of the full license at:
 
