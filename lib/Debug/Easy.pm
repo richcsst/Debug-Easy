@@ -1,6 +1,6 @@
 #############################################################################
 #################         Easy Debugging Module        ######################
-################# Copyright 2013 - 2021 Richard Kelsch ######################
+################# Copyright 2013 - 2023 Richard Kelsch ######################
 #################          All Rights Reserved         ######################
 #############################################################################
 ####### Licensing information available near the end of this file. ##########
@@ -736,7 +736,7 @@ To install this module, run the following commands:
  perl Makefile.PL
  make
  make test
- make install
+ [sudo] make install
 
 =head1 AUTHOR
 
@@ -746,7 +746,7 @@ This program is free software; you can redistribute it and/or modify it under th
 
 =head1 B<VERSION>
 
-Version 2.07    (June 24, 2021)
+Version 2.08    (June 24, 2021)
 
 =head1 B<SUPPORT>
 
@@ -768,7 +768,7 @@ If you have any features you wish added, or functionality improved or changed, t
 
 =head1 B<LICENSE AND COPYRIGHT>
 
-Copyright 2013-2021 Richard Kelsch.
+Copyright 2013-2023 Richard Kelsch.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the the Artistic License (2.0). You may obtain a copy of the full license at:
 

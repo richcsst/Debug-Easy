@@ -1,12 +1,13 @@
 Changes
+examples/test-tree.pl
 examples/test.pl
+examples/X1/X2.pm
 ignore.txt
 lib/Debug/Easy.pm
 Makefile.PL
 MANIFEST
-META.json
-META.yml
 README
+README.md
 t/00-load.t
 t/01-all-levels.t
 t/02-verbose.t
