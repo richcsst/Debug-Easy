@@ -31,7 +31,7 @@ $Data::Dumper::Purity   = TRUE;
 $Data::Dumper::Deparse  = TRUE;
 
 use Config;
-eval {use threads;};
+eval { use threads; };
 
 BEGIN {
     require Exporter;
