@@ -347,3 +347,13 @@ Revision history for Debug-Easy
 2.13    Dec 15, 2023
 
         Relaxed module version requirements in make.
+
+2.14    Mar 07, 2024
+
+        Changed the Data::Dumper specific output behavior
+
+2.15    Apr 20,2025
+
+        Control variables were case specific.  I relaxed that requirement.
+		The documentation still shows the case sensitive variables, but the
+		actual code is forgiving.
