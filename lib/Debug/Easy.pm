@@ -13,8 +13,8 @@ use constant {
     TRUE  => 1,
     FALSE => 0,
 };
-use Config;;
 
+use Config;
 use DateTime;
 use Term::ANSIColor;
 use Time::HiRes qw(time);
@@ -26,6 +26,8 @@ eval {               # Data::Dumper::Simple is preferred.  Try to load it withou
     Data::Dumper::Simple->import();
     1;
 };
+
+use threads;
 
 # Set up dumper variables for friendly output
 
@@ -39,7 +41,6 @@ $Data::Dumper::Sortkeys      = TRUE;
 $Data::Dumper::Purity        = TRUE;
 $Data::Dumper::Deparse       = TRUE;
 
-use threads;
 
 BEGIN {
     require Exporter;
