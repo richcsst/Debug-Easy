@@ -27,6 +27,8 @@ You can also look for information at:
 
 * [GitHub](https://github.com/richcsst/Debug-Easy.git) - https://github.com/richcsst/Debug-Easy.git
 
+  GitHub will always have the latest version available, even before CPAN.
+
 ## LICENSE AND COPYRIGHT
 
 Copyright © 2013-2023 Richard Kelsch
