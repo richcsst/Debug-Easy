@@ -1,4 +1,3 @@
-
 # Debug::Easy Makefile.PL
 use strict;
 use warnings FATAL => 'all';
@@ -44,6 +43,7 @@ if (
             'Test::More' => 0.44,
         },
         PREREQ_PRINT => 1,
+		PREREQ_FATAL => 1,
         PREREQ_PM    => {
             'Time::HiRes'     => 0,
             'Term::ANSIColor' => 0,
@@ -59,7 +59,7 @@ if (
     exit(0);
 } ## end if (WriteMakefile(NAME...))
 
-print "\nConfiguration of Debug::Easy ", colored(['red'],'Failed'), "\n\n";
+ERROR("Configuration of Debug::Easy ", colored(['red'],'Failed'));
 exit(1);
 
 sub slurp_file {
@@ -70,3 +70,20 @@ sub slurp_file {
         do { local (@ARGV, $/) = $file; <> }
     );
 } ## end sub slurp_file
+
+sub ERROR {
+    my $message = shift;
+###
+my $text = <<'ERR';
+  ______ _____  _____   ____  _____   
+ |  ____|  __ \|  __ \ / __ \|  __ \  
+ | |__  | |__) | |__) | |  | | |__) | 
+ |  __| |  _  /|  _  /| |  | |  _  /  
+ | |____| | \ \| | \ \| |__| | | \ \  
+ |______|_|  \_\_|  \_\\____/|_|  \_\ 
+                                     
+ERR
+###
+    print STDERR colored(['red on_black'],$text),"\n";
+    print STDERR $message,"\n\n";
+}
