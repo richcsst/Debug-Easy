@@ -811,5 +811,6 @@ And available on CPAN
 
  *  Debug::Easy
  *  Graphics::Framebuffer
+ *  Term::ANSIEncode
 
 =cut
