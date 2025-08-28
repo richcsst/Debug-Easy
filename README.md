@@ -40,7 +40,7 @@ You can also look for information at:
 
 ## LICENSE AND COPYRIGHT
 
-Copyright © 2013-2023 Richard Kelsch
+Copyright © 2013-2025 Richard Kelsch
 
 This program is free software; you can redistribute it and/or modify it under the terms of the the Artistic License (2.0). You may obtain a copy of the full license at:
 
