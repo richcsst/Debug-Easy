@@ -1,10 +1,8 @@
-#############################################################################
 #################         Easy Debugging Module        ######################
 ################# Copyright 2013 - 2025 Richard Kelsch ######################
 #################          All Rights Reserved         ######################
-#############################################################################
 ######## Licensing information available near the end of this file. #########
-#############################################################################
+
 
 package Debug::Easy;
 
@@ -46,7 +44,7 @@ BEGIN {
     require Exporter;
 
     # set the version for version checking
-    our $VERSION = '2.16';
+    our $VERSION = '2.17';
 
     # Inherit from Exporter to export functions and variables
     our @ISA = qw(Exporter);
@@ -572,7 +570,7 @@ sub _send_to_logger {      # This actually simplifies the previous method ... se
     my $threaded = 'PT-';
     my $epoch    = time;
 
-    if (exists($Config{'useithreads'}) && $Config{'useithreads'}) { # Gotta trust the Config vars
+    if (exists($Config{'useithreads'}) && $Config{'useithreads'}) { # Gotta trust the Config vars... right?
 		my $tid   = threads->tid();
 		$threaded = ($tid > 0) ? sprintf('T%02d',$tid) : 'PT-';
     } ## end if (exists($Config{'useithreads'...}))
