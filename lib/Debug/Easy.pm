@@ -315,12 +315,12 @@ B<%D>
 =over 8
 
   'ANSILevel' => {
-     'ERR'      => colored(['white on_red'],        '[ ERROR ]'),
-     'WARN'     => colored(['black on_yellow'],     '[WARNING]'),
-     'NOTICE'   => colored(['yellow'],              '[NOTICE ]'),
-     'INFO'     => colored(['black on_white'],      '[ INFO  ]'),
-     'DEBUG'    => colored(['bold green'],          '[ DEBUG ]'),
-     'DEBUGMAX' => colored(['bold black on_green'], '[DEBUGMX]'),
+     'ERR'      => colored(['white on_red'],        '[ ERROR  ]'),
+     'WARN'     => colored(['black on_yellow'],     '[WARNING ]'),
+     'NOTICE'   => colored(['yellow'],              '[ NOTICE ]'),
+     'INFO'     => colored(['black on_white'],      '[ INFO   ]'),
+     'DEBUG'    => colored(['bold green'],          '[ DEBUG  ]'),
+     'DEBUGMAX' => colored(['bold black on_green'], '[DEBUGMAX]'),
   }
 
 =back
@@ -357,6 +357,7 @@ sub new {
         'DEBUGMAX-Prefix'    => '%Date% %Time% %Benchmark% %Loglevel%[%Module%][%Lines%] ',
         'Filename'           => '[' . colored(['magenta'], $filename) . ']',
         'TIMEZONE'           => DateTime::TimeZone->new(name => 'local'),
+		'DATETIME'           => DateTime->now('time_zone' => DateTime::TimeZone->new(name => 'local')),
         'ANSILevel'          => {
             'ERR'      => colored(['white on_red'],        '[ ERROR  ]'),
             'WARN'     => colored(['black on_yellow'],     '[WARNING ]'),
@@ -458,6 +459,7 @@ sub debug {
     $level =~ s/(OR|ING|RMATION)$//;                        # Strip off the excess
 
     # A much quicker bypass when the log level is below what is needed
+	# This minimizes the execution overhead for log levels not active.
     return if ($LevelLogic{ $self->{'LOGLEVEL'} } < $LevelLogic{$level});
 
     my @messages;
@@ -562,7 +564,7 @@ sub _send_to_logger {      # This actually simplifies the previous method ... se
     my $shortsub   = shift;
 
     my $timezone = $self->{'TIMEZONE'} || DateTime::TimeZone->new(name => 'local');
-    my $dt       = DateTime->now('time_zone' => $timezone);
+    my $dt       = $self->{'DATETIME'};
     my $Date     = $dt->ymd();
     my $Time     = $dt->hms();
     my $prefix   = $self->{ $level . '-PREFIX' } . '';        # A copy not a pointer
@@ -763,7 +765,7 @@ This program is free software; you can redistribute it and/or modify it under th
 
 =head1 B<VERSION>
 
-Version 2.16
+Version 2.17
 
 =head1 B<SUPPORT>
 
@@ -805,10 +807,14 @@ Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONT
 
 Perl modules available on github - L<https://github.com/richcsst>
 
-And available on CPAN
+And available on CPAN:
 
  *  Debug::Easy
  *  Graphics::Framebuffer
  *  Term::ANSIEncode
+
+Also working on (still set as B<private> on GitHub):
+
+ *  BBS::Universal - A Perl based Internet BBS server
 
 =cut
