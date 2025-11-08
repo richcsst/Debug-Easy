@@ -6,6 +6,8 @@
 
 package Debug::Easy;
 
+=encoding utf8
+
 use strict;
 use constant {
     TRUE  => 1,
@@ -791,7 +793,7 @@ Copyright 2013-2025 Richard Kelsch.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the the Artistic License (2.0). You may obtain a copy of the full license at:
 
-L<http://www.perlfoundation.org/artistic_license_2_0>
+L<https://perlfoundation.org/artistic-license-20.html>
 
 Any use, modification, and distribution of the Standard or Modified Versions is governed by this Artistic License. By using, modifying or distributing the Package, you accept this license. Do not use, modify, or distribute the Package, if you do not accept this license.
 
