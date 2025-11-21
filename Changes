@@ -374,3 +374,4 @@ Revision history for Debug-Easy
 2.19    Nov 21, 2025
 
         Changed COLOR handling
+		Removed DateTime
