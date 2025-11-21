@@ -8,7 +8,6 @@ BEGIN {
     use_ok('Debug::Easy') || print "Bail out! Can't load Debug::Easy!\n";
 }
 
-# exit(0);
 my @LogLevel = qw( ERR WARN NOTICE INFO DEBUG DEBUGMAX );
 my @CodeLevel = ('[ ERROR ]', '[WARNING]', '[NOTICE ]', '[ INFO  ]', '[ DEBUG ]', '[-DEBUG-]');
 

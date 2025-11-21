@@ -8,7 +8,6 @@ use constant {
 };
 
 use Config;
-use DateTime;
 use Term::ANSIColor;
 use Time::HiRes qw(time);
 use File::Basename qw(fileparse);
@@ -45,7 +44,9 @@ for (my $count = 0; $count < scalar(@Levels); $count++) {
 }
 
 our $PARENT = $$;    # This needs to be defined at the very beginning before new
-my ($SCRIPTNAME, $SCRIPTPATH, $suffix) = fileparse($0);
+our ($SCRIPTNAME, $SCRIPTPATH, $suffix) = fileparse($0);
+# our @months = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
+# our @days = qw(Sun Mon Tue Wed Thu Fri Sat Sun);
 
 =encoding utf8
 
@@ -341,8 +342,8 @@ sub new {
         'Prefix'             => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
         'DEBUGMAX-Prefix'    => '%Date% %Time% %Benchmark% %Loglevel%[%Module%][%Lines%] ',
         'Filename'           => '[' . colored(['magenta'], $filename) . ']',
-        'TIMEZONE'           => DateTime::TimeZone->new(name => 'local'),
-        'DATETIME'           => DateTime->now('time_zone' => DateTime::TimeZone->new(name => 'local')),
+#        'TIMEZONE'           => DateTime::TimeZone->new(name => 'local'),
+#        'DATETIME'           => DateTime->now('time_zone' => DateTime::TimeZone->new(name => 'local')),
         'ANSILevel'          => {
             'ERR'      => colored(['white on_red'],        '[ ERROR  ]'),
             'WARN'     => colored(['black on_yellow'],     '[WARNING ]'),
@@ -551,10 +552,12 @@ sub debug {
 sub _send_to_logger {    # This actually simplifies the previous method ... seriously
     my ($self, $level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub) = @_;
 
-    my $timezone = $self->{'TIMEZONE'} || DateTime::TimeZone->new(name => 'local');
-    my $dt       = $self->{'DATETIME'};
-    my $Date     = $dt->ymd();
-    my $Time     = $dt->hms();
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
+#    my $timezone = $self->{'TIMEZONE'} || DateTime::TimeZone->new(name => 'local');
+#    my $dt       = $self->{'DATETIME'};
+#    my $Date     = sprintf('%02d %03s %03s, %04d', $mday, $months[$mon], $days[$wday], (1900 + $year));
+    my $Date     = sprintf('%02d/%02s/%04d', $mday, ($mon + 1), (1900 + $year));
+    my $Time     = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
     my $prefix   = $self->{ $level . '-PREFIX' } . '';                                # A copy not a pointer
     my $forked   = ($PARENT ne $$) ? 'C' : 'P';
     my $threaded = 'PT-';
@@ -774,7 +777,7 @@ I coded this module because it filled a gap when I was working for a major chip 
 If you have any features you wish added, or functionality improved or changed, then I welcome them, and will very likely incorporate them sooner than you think.
 
 =head1 B<LICENSE AND COPYRIGHT>
-
+7
 Copyright 2013-2025 Richard Kelsch.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the the Artistic License (2.0). You may obtain a copy of the full license at:
