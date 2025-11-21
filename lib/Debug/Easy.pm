@@ -22,18 +22,6 @@ eval {               # Data::Dumper::Simple is preferred.  Try to load it withou
 
 use if ($Config{'useithreads'}), 'threads';
 
-# Set up dumper variables for friendly output
-
-$Data::Dumper::Terse         = TRUE;
-$Data::Dumper::Indent        = TRUE;
-$Data::Dumper::Useqq         = TRUE;
-$Data::Dumper::Deparse       = TRUE;
-$Data::Dumper::Quotekeys     = TRUE;
-$Data::Dumper::Trailingcomma = TRUE;
-$Data::Dumper::Sortkeys      = TRUE;
-$Data::Dumper::Purity        = TRUE;
-$Data::Dumper::Deparse       = TRUE;
-
 BEGIN {
     require Exporter;
 
@@ -464,6 +452,17 @@ sub debug {
         push(@messages, Dumper($msgs));
     }
     my ($sname, $cline, $nested, $subroutine, $thisBench, $thisBench2, $sline, $short) = ('', '', '', '', '', '', '', '');
+    # Set up dumper variables for friendly output
+
+	local $Data::Dumper::Terse         = TRUE;
+	local $Data::Dumper::Indent        = TRUE;
+	local $Data::Dumper::Useqq         = TRUE;
+	local $Data::Dumper::Deparse       = TRUE;
+	local $Data::Dumper::Quotekeys     = TRUE;
+	local $Data::Dumper::Trailingcomma = TRUE;
+	local $Data::Dumper::Sortkeys      = TRUE;
+	local $Data::Dumper::Purity        = TRUE;
+	local $Data::Dumper::Deparse       = TRUE;
 
     # Figure out the proper caller tree and line number ladder
     # But only if it's part of the prefix, else don't waste time.
@@ -545,17 +544,7 @@ sub debug {
 } ## end sub debug
 
 sub _send_to_logger {    # This actually simplifies the previous method ... seriously
-    my $self       = shift;
-    my $level      = shift;
-    my $padding    = shift;
-    my $msg        = shift;
-    my $first      = shift;
-    my $thisBench  = shift;
-    my $thisBench2 = shift;
-    my $subroutine = shift;
-    my $cline      = shift;
-    my $sline      = shift;
-    my $shortsub   = shift;
+    my ($self, $level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub) = @_;
 
     my $timezone = $self->{'TIMEZONE'} || DateTime::TimeZone->new(name => 'local');
     my $dt       = $self->{'DATETIME'};
@@ -670,7 +659,7 @@ sub NOTICE {
 
 sub ATTENTION {
     my $self = shift;
-    $self->debug('NOTICE' . @_);
+    $self->debug('NOTICE', @_);
 }
 
 =head2 B<INFO> or B<INFORMATION>
