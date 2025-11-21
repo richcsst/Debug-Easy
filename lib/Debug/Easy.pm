@@ -120,10 +120,14 @@ Generally all you need are the defaults and you are ready to go.
 
 sub DESTROY {    # We spit out one last message before we die, the total execute time.
     my $self  = shift;
-    my $bench = colored(['bright_cyan'], sprintf('%06s', sprintf('%.02f', (time - $self->{'MASTERSTART'}))));
+    my $bench = ($self->{'COLOR'} =~ /^(0|FALSE|OFF|NO)$/i) ? sprintf('%06s', sprintf('%.02f', (time - $self->{'MASTERSTART'}))) : colored(['bright_cyan'], sprintf('%06s', sprintf('%.02f', (time - $self->{'MASTERSTART'}))));
     my $name  = $SCRIPTNAME;
     $name .= ' [child]' if ($PARENT ne $$);
-    $self->DEBUG([$bench . ' ' . colored(['black on_white'], "---- $name complete ----")]);
+	if ($self->{'COLOR'} =~ /^(0|FALSE|OFF|NO)$/i) {
+		$self->DEBUG(["$bench ---- $name complete ----"]);
+	} else {
+		$self->DEBUG([$bench . ' ' . colored(['black on_white'], "---- $name complete ----")]);
+	}
 } ## end sub DESTROY
 
 =head1 B<METHODS>
@@ -375,8 +379,8 @@ sub new {
 
     # This instructs the ANSIColor library to turn off coloring,
     # if the Color attribute is set to zero.
-    if ($self->{'COLOR'} =~ /0|FALSE|OFF|NO/i) {
-        $ENV{'ANSI_COLORS_DISABLED'} = TRUE;
+    if ($self->{'COLOR'} =~ /^(0|FALSE|OFF|NO)$/i) {
+        local $ENV{'ANSI_COLORS_DISABLED'} = TRUE; # Only this module should be set
 
         # If COLOR is FALSE, then clear color data from ANSILEVEL, as these were
         # defined before color was turned off.
@@ -402,7 +406,7 @@ sub new {
     # Signal the script has started (and logger initialized)
     my $name = $SCRIPTNAME;
     $name .= ' [child]' if ($PARENT ne $$);
-    print $fh sprintf('   %.02f%s %s', 0, $self->{'ANSILEVEL'}->{'DEBUG'}, colored(['black on_white'], "----- $name begin -----") . " (To View in 'less', use it's '-r' switch)"), "\n" if ($self->{'LOGLEVEL'} !~ /ERR/);
+    print $fh sprintf('   %.02f%s %s', 0, $self->{'ANSILEVEL'}->{'DEBUG'}, ($self->{'COLOR'} =~ /^(0|FALSE|OFF|NO)$/i) ? "----- $name begin -----" : colored(['black on_white'], "----- $name begin -----"), " (To View in 'less', use it's '-r' switch)"), "\n" if ($self->{'LOGLEVEL'} !~ /ERR/);
 
     bless($self, $class);
     return ($self);
@@ -511,9 +515,9 @@ sub debug {
         $self->{'SUBROUTINE-PADDING'} = 0 - length($short)      if (length($short) > abs($self->{'SUBROUTINE-PADDING'}));
         $self->{'LINE-PADDING'}       = 0 - length($sline)      if (length($sline) > abs($self->{'LINE-PADDING'}));
         $cline                        = sprintf('%' . $self->{'LINES-PADDING'} . 's', $cline);
-        $subroutine                   = colored(['bold cyan'], sprintf('%' . $self->{'PADDING'} . 's', $subroutine));
+        $subroutine                   = ($self->{'COLOR'} =~ /^(0|FALSE|OFF|NO)$/i) ? sprintf('%' . $self->{'PADDING'} . 's', $subroutine) : colored(['bold cyan'], sprintf('%' . $self->{'PADDING'} . 's', $subroutine));
         $sline                        = sprintf('%' . $self->{'LINE-PADDING'} . 's', $sline);
-        $short                        = colored(['bold cyan'], sprintf('%' . $self->{'SUBROUTINE-PADDING'} . 's', $short));
+        $short                        = ($self->{'COLOR'} =~ /^(0|FALSE|OFF|NO)$/i) ? sprintf('%' . $self->{'SUBROUTINE-PADDING'} . 's', $short) : colored(['bold cyan'], sprintf('%' . $self->{'SUBROUTINE-PADDING'} . 's', $short));
     } ## end if ($self->{'PREFIX'} ...)
 
     # Figure out the benchmarks, but only if it is in the prefix
