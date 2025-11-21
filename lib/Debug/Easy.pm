@@ -406,7 +406,8 @@ sub new {
     # Signal the script has started (and logger initialized)
     my $name = $SCRIPTNAME;
     $name .= ' [child]' if ($PARENT ne $$);
-    print $fh sprintf('   %.02f%s %s', 0, $self->{'ANSILEVEL'}->{'DEBUG'}, (! $self->{'COLOR'}) ? "----- $name begin -----" : colored(['black on_white'], "----- $name begin -----"), " (To View in 'less', use it's '-r' switch)"), "\n" if ($self->{'LOGLEVEL'} !~ /ERR/);
+	my $string = (! $self->{'COLOR'}) ? "----- $name begin -----" : colored(['black on_white'], "----- $name begin -----");
+    print $fh sprintf('   %.02f%s %s%s', 0, $self->{'ANSILEVEL'}->{'DEBUG'}, $string, " (To View in 'less', use it's '-r' switch)"), "\n" if ($self->{'LOGLEVEL'} !~ /ERR/);
 
     bless($self, $class);
     return ($self);
