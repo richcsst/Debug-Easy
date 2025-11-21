@@ -370,3 +370,7 @@ Revision history for Debug-Easy
 2.18    Nov 11, 2025
 
         Changed how versioning is handled
+
+2.19    Nov 21, 2025
+
+        Changed COLOR handling

@@ -1,4 +1,4 @@
-package Debug::Easy 2.18;
+package Debug::Easy 2.19;
 
 use strict;
 use warnings;
@@ -380,7 +380,7 @@ sub new {
     # This instructs the ANSIColor library to turn off coloring,
     # if the Color attribute is set to zero.
     unless ($self->{'COLOR'}) {
-        local $ENV{'ANSI_COLORS_DISABLED'} = TRUE; # Only this module should be set
+#        local $ENV{'ANSI_COLORS_DISABLED'} = TRUE; # Only this module should be set
 
         # If COLOR is FALSE, then clear color data from ANSILEVEL, as these were
         # defined before color was turned off.
