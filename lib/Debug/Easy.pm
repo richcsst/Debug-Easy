@@ -1,6 +1,7 @@
 package Debug::Easy 2.18;
 
 use strict;
+use warnings;
 use constant {
     TRUE  => 1,
     FALSE => 0,
