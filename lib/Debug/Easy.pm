@@ -1,7 +1,7 @@
 package Debug::Easy 2.19;
 
 use strict;
-use warnings;
+# use warnings;
 use constant {
     TRUE  => 1,
     FALSE => 0,
@@ -447,6 +447,7 @@ sub debug {
 
     # A much quicker bypass when the log level is below what is needed
     # This minimizes the execution overhead for log levels not active.
+
     return if ($LevelLogic{ $self->{'LOGLEVEL'} } < $LevelLogic{$level});
 
     my @messages;
