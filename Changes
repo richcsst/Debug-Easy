@@ -375,3 +375,7 @@ Revision history for Debug-Easy
 
         Changed COLOR handling
         Removed DateTime
+
+2.20    Dec 13, 2025
+
+        Optimized module
