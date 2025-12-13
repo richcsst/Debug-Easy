@@ -409,8 +409,9 @@ sub new {
     my $forked   = ($PARENT ne $$) ? 'C' : 'P';
     my $threaded = 'PT-';
     if (exists($Config{'useithreads'}) && $Config{'useithreads'}) {
-        my $tid = eval { threads->tid(); };
-        $threaded = ($tid && $tid > 0) ? sprintf('T%02d', $tid) : 'PT-';
+        # threads module is conditionally loaded via 'use if' at module load time
+        my $tid = eval { threads->tid(); } || 0;
+        $threaded = ($tid > 0) ? sprintf('T%02d', $tid) : 'PT-';
     }
     
     foreach my $lvl (@Levels) {
