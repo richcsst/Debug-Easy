@@ -402,6 +402,29 @@ sub new {
         $self->{"$lvl-PREFIX"} = $self->{'PREFIX'} unless (exists($self->{"$lvl-PREFIX"}) && defined($self->{"$lvl-PREFIX"}));
     }
 
+    # Precompute static prefix templates per level for performance
+    # Static tokens: %PID%, %Filename%, %Fork%, %Thread%, %Loglevel%
+    # Dynamic tokens (substituted at emit time): %date%, %time%, %epoch%, %Benchmark%
+    # Call-site tokens (substituted in debug method): %Lines%, %Lastline%, %Subroutine%, %Module%
+    my $forked   = ($PARENT ne $$) ? 'C' : 'P';
+    my $threaded = 'PT-';
+    if (exists($Config{'useithreads'}) && $Config{'useithreads'}) {
+        my $tid = eval { threads->tid(); };
+        $threaded = ($tid && $tid > 0) ? sprintf('T%02d', $tid) : 'PT-';
+    }
+    
+    foreach my $lvl (@Levels) {
+        my $template = $self->{"$lvl-PREFIX"};
+        # Substitute static tokens once at construction time
+        $template =~ s/\%PID\%/$$/gi;
+        $template =~ s/\%Loglevel\%/$self->{'ANSILEVEL'}->{$lvl}/gi;
+        $template =~ s/\%Filename\%/$self->{'FILENAME'}/gi;
+        $template =~ s/\%Fork\%/$forked/gi;
+        $template =~ s/\%Thread\%/$threaded/gi;
+        # Store the precomputed template
+        $self->{"$lvl-PREFIX-TEMPLATE"} = $template;
+    }
+
     my $fh = $self->{'FILEHANDLE'};
 
     # Signal the script has started (and logger initialized)
@@ -557,33 +580,24 @@ sub _send_to_logger {    # This actually simplifies the previous method ... seri
 #    my $timezone = $self->{'TIMEZONE'} || DateTime::TimeZone->new(name => 'local');
 #    my $dt       = $self->{'DATETIME'};
 #    my $Date     = sprintf('%02d %03s %03s, %04d', $mday, $months[$mon], $days[$wday], (1900 + $year));
-    my $Date     = sprintf('%02d/%02s/%04d', $mday, ($mon + 1), (1900 + $year));
+    my $Date     = sprintf('%02d/%02d/%04d', $mday, ($mon + 1), (1900 + $year));
     my $Time     = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
-    my $prefix   = $self->{ $level . '-PREFIX' } . '';                                # A copy not a pointer
-    my $forked   = ($PARENT ne $$) ? 'C' : 'P';
-    my $threaded = 'PT-';
     my $epoch    = time;
 
-    if (exists($Config{'useithreads'}) && $Config{'useithreads'}) {                   # Gotta trust the Config vars... right?
-        my $tid = threads->tid();
-        $threaded = ($tid > 0) ? sprintf('T%02d', $tid) : 'PT-';
-    }
+    # Use precomputed template (static tokens already substituted at construction)
+    my $prefix   = $self->{ $level . '-PREFIX-TEMPLATE' } . '';                       # A copy not a pointer
 
-    $prefix =~ s/\%PID\%/$$/gi;
-    $prefix =~ s/\%Loglevel\%/$self->{'ANSILEVEL'}->{$level}/gi;
+    # Only substitute dynamic and call-site tokens per line
     $prefix =~ s/\%Lines\%/$cline/gi;
     $prefix =~ s/\%Lastline\%/$sline/gi;
     $prefix =~ s/\%Subroutine\%/$shortsub/gi;
+    $prefix =~ s/\%Module\%/$subroutine/gi;
     $prefix =~ s/\%Date\%/$self->{'DATESTAMP'}/gi;
     $prefix =~ s/\%Time\%/$self->{'TIMESTAMP'}/gi;
     $prefix =~ s/\%Epoch\%/$self->{'EPOCH'}/gi;
     $prefix =~ s/\%date\%/$Date/gi;
     $prefix =~ s/\%time\%/$Time/gi;
     $prefix =~ s/\%epoch\%/$epoch/gi;
-    $prefix =~ s/\%Filename\%/$self->{'FILENAME'}/gi;
-    $prefix =~ s/\%Fork\%/$forked/gi;
-    $prefix =~ s/\%Thread\%/$threaded/gi;
-    $prefix =~ s/\%Module\%/$subroutine/gi;
 
     if ($first) {
         $prefix =~ s/\%Benchmark\%/$thisBench/gi;
