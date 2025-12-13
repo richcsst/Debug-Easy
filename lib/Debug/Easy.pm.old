@@ -34,9 +34,6 @@ BEGIN {
     our @EXPORT_OK = qw(fileparse @Levels);
 } ## end BEGIN
 
-# Version for tooling consistency
-our $VERSION = '2.19';
-
 # This can be optionally exported for whatever
 our @Levels = qw( ERR WARN NOTICE INFO VERBOSE DEBUG DEBUGMAX );
 
@@ -63,7 +60,7 @@ Debug::Easy - A Handy Debugging Module With Colorized Output and Formatting
 
  my $debug = Debug::Easy->new( 'LogLevel' => 'DEBUG', 'Color' => 1 );
 
-'LogLevel' is the maximum level to report, and ignore the rest.  The method names correspond to their loglevels, when outputting a specific message.  This identifies to the module what type of message [...]
+'LogLevel' is the maximum level to report, and ignore the rest.  The method names correspond to their loglevels, when outputting a specific message.  This identifies to the module what type of message it is.
 
 The following is a list, in order of level, of the logging methods:
 
@@ -106,9 +103,9 @@ Each string can contain newlines, which will also be split into a separate line 
 
 =head1 DESCRIPTION
 
-This module makes it easy to add debugging features to your code, Without having to re-invent the wheel.  It uses STDERR and ANSI color formatted text output, as well as indented and multiline text fo [...]
+This module makes it easy to add debugging features to your code, Without having to re-invent the wheel.  It uses STDERR and ANSI color formatted text output, as well as indented and multiline text formatting, to make things easy to read.  NOTE:  It is generally defaulted to output in a format for viewing on wide terminals!
 
-Benchmarking is automatic, to make it easy to spot bottlenecks in code.  It automatically stamps from where it was called, and makes debug coding so much easier, without having to include the location [...]
+Benchmarking is automatic, to make it easy to spot bottlenecks in code.  It automatically stamps from where it was called, and makes debug coding so much easier, without having to include the location of the debugging location in your debug message.  This is all taken care of for you.
 
 It also allows multiple output levels from errors only, to warnings, to notices, to verbose information, to full on debug output.  All of this fully controllable by the coder.
 
@@ -124,16 +121,14 @@ Generally all you need are the defaults and you are ready to go.
 
 sub DESTROY {    # We spit out one last message before we die, the total execute time.
     my $self  = shift;
-    my $bench = (! $self->{'COLOR'})
-        ? sprintf('%06.2f', (time - $self->{'MASTERSTART'}))
-        : colored(['bright_cyan'], sprintf('%06.2f', (time - $self->{'MASTERSTART'})));
+    my $bench = (! $self->{'COLOR'}) ? sprintf('%06s', sprintf('%.02f', (time - $self->{'MASTERSTART'}))) : colored(['bright_cyan'], sprintf('%06s', sprintf('%.02f', (time - $self->{'MASTERSTART'}))));
     my $name  = $SCRIPTNAME;
     $name .= ' [child]' if ($PARENT ne $$);
-    unless ($self->{'COLOR'}) {
-        $self->DEBUG(["$bench ---- $name complete ----"]);
-    } else {
-        $self->DEBUG([$bench . ' ' . colored(['black on_white'], "---- $name complete ----")]);
-    }
+	unless ($self->{'COLOR'}) {
+		$self->DEBUG(["$bench ---- $name complete ----"]);
+	} else {
+		$self->DEBUG([$bench . ' ' . colored(['black on_white'], "---- $name complete ----")]);
+	}
 } ## end sub DESTROY
 
 =head1 B<METHODS>
@@ -180,7 +175,7 @@ B<DEBUGMAX>
 
  This level shows all messages up to level 2 debugging messages.
 
- NOTE:  It has been asked "Why have two debugging levels?"  Well, I have had many times where I would like to see what a script is doing without it showing what I consider garbage overhead it may gene [...]
+ NOTE:  It has been asked "Why have two debugging levels?"  Well, I have had many times where I would like to see what a script is doing without it showing what I consider garbage overhead it may generate.  This is simply because the part of the code you are debugging you may not need such a high level of detail.  I use 'DEBUGMAX' to show me absolutely everything.  Such as Data::Dumper output.  Besides, anyone asking that question obviously hasn't dealt with complex data conversion scripts.
 
 =back
 
@@ -194,7 +189,7 @@ B<0>, B<Off>, or B<False> (Off)
 
 B<1>, B<On>, or B<True> (On - Default)
 
-  This turns on colored output.  This makes it easier to spot all of the different types of messages throughout a sea of debug output.  You can read the output with "less", and see color, by using it' [...]
+  This turns on colored output.  This makes it easier to spot all of the different types of messages throughout a sea of debug output.  You can read the output with "less", and see color, by using it's switch "-r".
 
 =back
 
@@ -383,13 +378,6 @@ sub new {
         }
     }
 
-    # Cache numeric log level value for quick comparisons
-    $self->{'LOGLEVEL_VALUE'} = $LevelLogic{ $self->{'LOGLEVEL'} };
-
-    # Cache thread support check for hot path
-    my $use_threads = ($Config{'useithreads'} && eval { require threads; 1 }) ? 1 : 0;
-    $self->{'USE_THREADS'} = $use_threads;
-
     # This instructs the ANSIColor library to turn off coloring,
     # if the Color attribute is set to zero.
     unless ($self->{'COLOR'}) {
@@ -408,39 +396,10 @@ sub new {
         $self->{'DATESTAMP'} = '%date%';
         $self->{'TIMESTAMP'} = '%time%';
         $self->{'EPOCH'}     = '%epoch%';
-        $self->{'FILENAME'}  = '[' . $filename . ']'; # Ensure filename without color
     }
 
     foreach my $lvl (@Levels) {
         $self->{"$lvl-PREFIX"} = $self->{'PREFIX'} unless (exists($self->{"$lvl-PREFIX"}) && defined($self->{"$lvl-PREFIX"}));
-    }
-
-    # Precompute static prefix templates per level to minimize per-line substitutions.
-    # We will leave dynamic tokens (%date%, %time%, %epoch%, %Benchmark%) for runtime.
-    $self->{'_PREFIX_TEMPLATES'} = {};
-    foreach my $lvl (@Levels) {
-        my $tmpl = $self->{"$lvl-PREFIX"} . ''; # copy
-        my $forked   = ($PARENT ne $$) ? 'C' : 'P';
-        my $threaded = 'PT-';
-        if ($self->{'USE_THREADS'}) {
-            my $tid = threads->can('tid') ? threads->tid() : 0;
-            $threaded = ($tid && $tid > 0) ? sprintf('T%02d', $tid) : 'PT-';
-        }
-
-        # Static substitutions
-        $tmpl =~ s/\%PID\%/$$/gi;
-        $tmpl =~ s/\%Loglevel\%/$self->{'ANSILEVEL'}->{$lvl}/gi;
-        $tmpl =~ s/\%Filename\%/$self->{'FILENAME'}/gi;
-        $tmpl =~ s/\%Fork\%/$forked/gi;
-        $tmpl =~ s/\%Thread\%/$threaded/gi;
-
-        # Leave dynamic tokens for runtime:
-        # %Lines%, %Lastline%, %Subroutine%, %Module% (caller-dependent)
-        # %Date%, %Time%, %Epoch% (colorized stamp placeholders)
-        # %date%, %time%, %epoch% (raw values)
-        # %Benchmark%
-
-        $self->{'_PREFIX_TEMPLATES'}->{$lvl} = $tmpl;
     }
 
     my $fh = $self->{'FILEHANDLE'};
@@ -448,7 +407,7 @@ sub new {
     # Signal the script has started (and logger initialized)
     my $name = $SCRIPTNAME;
     $name .= ' [child]' if ($PARENT ne $$);
-    my $string = (! $self->{'COLOR'}) ? "----- $name begin -----" : colored(['black on_white'], "----- $name begin -----");
+	my $string = (! $self->{'COLOR'}) ? "----- $name begin -----" : colored(['black on_white'], "----- $name begin -----");
     print $fh sprintf('   %.02f%s %s%s', 0, $self->{'ANSILEVEL'}->{'DEBUG'}, $string, " (To View in 'less', use it's '-r' switch)"), "\n" if ($self->{'LOGLEVEL'} !~ /ERR/);
 
     bless($self, $class);
@@ -488,7 +447,8 @@ sub debug {
 
     # A much quicker bypass when the log level is below what is needed
     # This minimizes the execution overhead for log levels not active.
-    return if ($self->{'LOGLEVEL_VALUE'} < $LevelLogic{$level});
+
+    return if ($LevelLogic{ $self->{'LOGLEVEL'} } < $LevelLogic{$level});
 
     my @messages;
     if (ref($msgs) eq 'SCALAR' || ref($msgs) eq '') {
@@ -501,19 +461,19 @@ sub debug {
     my ($sname, $cline, $nested, $subroutine, $thisBench, $thisBench2, $sline, $short) = ('', '', '', '', '', '', '', '');
     # Set up dumper variables for friendly output
 
-    local $Data::Dumper::Terse         = TRUE;
-    local $Data::Dumper::Indent        = TRUE;
-    local $Data::Dumper::Useqq         = TRUE;
-    local $Data::Dumper::Deparse       = TRUE;
-    local $Data::Dumper::Quotekeys     = TRUE;
-    local $Data::Dumper::Trailingcomma = TRUE;
-    local $Data::Dumper::Sortkeys      = TRUE;
-    local $Data::Dumper::Purity        = TRUE;
+	local $Data::Dumper::Terse         = TRUE;
+	local $Data::Dumper::Indent        = TRUE;
+	local $Data::Dumper::Useqq         = TRUE;
+	local $Data::Dumper::Deparse       = TRUE;
+	local $Data::Dumper::Quotekeys     = TRUE;
+	local $Data::Dumper::Trailingcomma = TRUE;
+	local $Data::Dumper::Sortkeys      = TRUE;
+	local $Data::Dumper::Purity        = TRUE;
+	local $Data::Dumper::Deparse       = TRUE;
 
     # Figure out the proper caller tree and line number ladder
-    # But only if it's part of the effective level prefix, else don't waste time.
-    my $effective_prefix = $self->{ $level . '-PREFIX' } || $self->{'PREFIX'};
-    if ($effective_prefix =~ /\%(Subroutine|Module|Lines|Lastline)\%/i) {    # %P = Subroutine, %l = Line number(s)
+    # But only if it's part of the prefix, else don't waste time.
+    if ($self->{'PREFIX'} =~ /\%(Subroutine|Module|Lines|Lastline)\%/i) {    # %P = Subroutine, %l = Line number(s)
         my $package = '';
         my $count   = 1;
         my $nest    = 0;
@@ -561,20 +521,16 @@ sub debug {
         $subroutine                   = (! $self->{'COLOR'}) ? sprintf('%' . $self->{'PADDING'} . 's', $subroutine) : colored(['bold cyan'], sprintf('%' . $self->{'PADDING'} . 's', $subroutine));
         $sline                        = sprintf('%' . $self->{'LINE-PADDING'} . 's', $sline);
         $short                        = (! $self->{'COLOR'}) ? sprintf('%' . $self->{'SUBROUTINE-PADDING'} . 's', $short) : colored(['bold cyan'], sprintf('%' . $self->{'SUBROUTINE-PADDING'} . 's', $short));
-    } ## end if ($effective_prefix ...)
+    } ## end if ($self->{'PREFIX'} ...)
 
     # Figure out the benchmarks, but only if it is in the prefix
-    if ($effective_prefix =~ /\%Benchmark\%/i) {
+    if ($self->{'PREFIX'} =~ /\%Benchmark\%/i) {
 
         # For multiline output, only output the bench data on the first line.  Use padded spaces for the rest.
         $thisBench  = sprintf('%7s', sprintf(' %.02f', time - $self->{'ANY_LASTSTAMP'}));
         $thisBench2 = ' ' x length($thisBench);
-    } ## end if ($effective_prefix ...)
+    } ## end if ($self->{'PREFIX'} ...)
     my $first = TRUE;                # Set the first line flag.
-
-    # Buffer lines to reduce syscalls for multi-line messages
-    my $buffer = '';
-
     foreach my $msg (@messages) {    # Loop through each line of output and format accordingly.
         if (ref($msg) ne '') {
             $msg = Dumper($msg);
@@ -582,101 +538,67 @@ sub debug {
         if ($msg =~ /\n/s) {         # If the line contains newlines, then it too must be split into multiple lines.
             my @message = split(/\n/, $msg);
             foreach my $line (@message) {    # Loop through the split lines and format accordingly.
-                $buffer .= $self->_format_line($level, $nested, $line, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $short);
-                $buffer .= "\n";
+                $self->_send_to_logger($level, $nested, $line, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $short);
                 $first = FALSE;              # Clear the first line flag.
             }
         } else {    # This line does not contain newlines.  Treat it as a single line.
-            $buffer .= $self->_format_line($level, $nested, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $short);
-            $buffer .= "\n";
+            $self->_send_to_logger($level, $nested, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $short);
         }
         $first = FALSE;    # Clear the first line flag.
     } ## end foreach my $msg (@messages)
-
-    my $fh = $self->{'FILEHANDLE'};
-    if ($level eq 'INFO' && $self->{'LOGLEVEL'} eq 'VERBOSE') {    # Trap verbose flag and temporarily drop the prefix.
-        # For verbose, we need to print messages without prefixes.
-        # Extract lines and print only message contents.
-        foreach my $msg (@messages) {
-            if (ref($msg) ne '') {
-                $msg = Dumper($msg);
-            }
-            if ($msg =~ /\n/s) {
-                my @message = split(/\n/, $msg);
-                foreach my $line (@message) {
-                    print $fh "$line\n";
-                }
-            } else {
-                print $fh "$msg\n";
-            }
-        }
-    } elsif ($level eq 'DEBUGMAX') {                               # Special version of DEBUG.  Extremely verbose debugging and quite noisy
-        if ($self->{'LOGLEVEL'} eq 'DEBUGMAX') {
-            print $fh $buffer;
-        }
-    } else {
-        print $fh $buffer;
-    }
-
     $self->{'ANY_LASTSTAMP'} = time;
     $self->{ $level . '_LASTSTAMP' } = time;
 } ## end sub debug
 
-# Internal: format a single line for logging (without printing)
-sub _format_line {
+sub _send_to_logger {    # This actually simplifies the previous method ... seriously
     my ($self, $level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub) = @_;
 
-    # Build prefix based on precomputed template and runtime substitutions
-    my $tmpl = $self->{'_PREFIX_TEMPLATES'}->{$level};
-    $tmpl = $self->{"$level-PREFIX"} . '' unless defined $tmpl; # Fallback safety
-
-    # Clone template since we mutate
-    my $prefix = $tmpl . '';
-
-    # Apply caller-derived fields only if present in the effective level prefix
-    if ($prefix =~ /\%Lines\%/i)     { $prefix =~ s/\%Lines\%/$cline/gi; }
-    if ($prefix =~ /\%Lastline\%/i)  { $prefix =~ s/\%Lastline\%/$sline/gi; }
-    if ($prefix =~ /\%Subroutine\%/i){ $prefix =~ s/\%Subroutine\%/$shortsub/gi; }
-    if ($prefix =~ /\%Module\%/i)    { $prefix =~ s/\%Module\%/$subroutine/gi; }
-
-    my ($sec,$min,$hour,$mday,$mon,$year) = localtime();
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
 #    my $timezone = $self->{'TIMEZONE'} || DateTime::TimeZone->new(name => 'local');
 #    my $dt       = $self->{'DATETIME'};
 #    my $Date     = sprintf('%02d %03s %03s, %04d', $mday, $months[$mon], $days[$wday], (1900 + $year));
-    my $Date     = sprintf('%02d/%02d/%04d', $mday, ($mon + 1), (1900 + $year));
+    my $Date     = sprintf('%02d/%02s/%04d', $mday, ($mon + 1), (1900 + $year));
     my $Time     = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
+    my $prefix   = $self->{ $level . '-PREFIX' } . '';                                # A copy not a pointer
+    my $forked   = ($PARENT ne $$) ? 'C' : 'P';
+    my $threaded = 'PT-';
     my $epoch    = time;
 
-    # Apply dynamic tokens
-    if ($first) {
-        $prefix =~ s/\%Benchmark\%/$thisBench/gi;
-    } else {
-        $prefix =~ s/\%Benchmark\%/$thisBench2/gi;
+    if (exists($Config{'useithreads'}) && $Config{'useithreads'}) {                   # Gotta trust the Config vars... right?
+        my $tid = threads->tid();
+        $threaded = ($tid > 0) ? sprintf('T%02d', $tid) : 'PT-';
     }
+
+    $prefix =~ s/\%PID\%/$$/gi;
+    $prefix =~ s/\%Loglevel\%/$self->{'ANSILEVEL'}->{$level}/gi;
+    $prefix =~ s/\%Lines\%/$cline/gi;
+    $prefix =~ s/\%Lastline\%/$sline/gi;
+    $prefix =~ s/\%Subroutine\%/$shortsub/gi;
     $prefix =~ s/\%Date\%/$self->{'DATESTAMP'}/gi;
     $prefix =~ s/\%Time\%/$self->{'TIMESTAMP'}/gi;
     $prefix =~ s/\%Epoch\%/$self->{'EPOCH'}/gi;
     $prefix =~ s/\%date\%/$Date/gi;
     $prefix =~ s/\%time\%/$Time/gi;
     $prefix =~ s/\%epoch\%/$epoch/gi;
+    $prefix =~ s/\%Filename\%/$self->{'FILENAME'}/gi;
+    $prefix =~ s/\%Fork\%/$forked/gi;
+    $prefix =~ s/\%Thread\%/$threaded/gi;
+    $prefix =~ s/\%Module\%/$subroutine/gi;
 
-    return "$prefix$padding$msg";
-}
-
-sub _send_to_logger {    # Legacy path: retained for backward compatibility but routed via _format_line
-    my ($self, $level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub) = @_;
-
+    if ($first) {
+        $prefix =~ s/\%Benchmark\%/$thisBench/gi;
+    } else {
+        $prefix =~ s/\%Benchmark\%/$thisBench2/gi;
+    }
     my $fh = $self->{'FILEHANDLE'};
     if ($level eq 'INFO' && $self->{'LOGLEVEL'} eq 'VERBOSE') {    # Trap verbose flag and temporarily drop the prefix.
         print $fh "$msg\n";
     } elsif ($level eq 'DEBUGMAX') {                               # Special version of DEBUG.  Extremely verbose debugging and quite noisy
         if ($self->{'LOGLEVEL'} eq 'DEBUGMAX') {
-            my $line = $self->_format_line($level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub);
-            print $fh "$line\n";
+            print $fh "$prefix$padding$msg\n";
         }
     } else {
-        my $line = $self->_format_line($level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub);
-        print $fh "$line\n";
+        print $fh "$prefix$padding$msg\n";
     }
 } ## end sub _send_to_logger
 
@@ -774,7 +696,7 @@ sub INFORMATION {
 
 =head2 B<DEBUG>
 
-If the Loglevel is DEBUG or above, then basic debugging messages are logged.  DEBUG is intended for basic program flow messages for easy tracing.  Best not to place variable contents in these messages [...]
+If the Loglevel is DEBUG or above, then basic debugging messages are logged.  DEBUG is intended for basic program flow messages for easy tracing.  Best not to place variable contents in these messages.
 
 =over 4
 
@@ -792,7 +714,7 @@ sub DEBUG {
 
 =head2 B<DEBUGMAX>
 
-If the loglevel is DEBUGMAX, then all messages are shown, and terse debugging messages as well.  Typically DEBUGMAX is used for variable dumps and detailed data output for heavy tracing.  This is a ve [...]
+If the loglevel is DEBUGMAX, then all messages are shown, and terse debugging messages as well.  Typically DEBUGMAX is used for variable dumps and detailed data output for heavy tracing.  This is a very "noisy" log level.
 
 =over 4
 
@@ -812,7 +734,7 @@ sub DEBUGMAX {
 
 =head1 B<CAVEATS>
 
-Since it is possible to duplicate the object in a fork or thread, the output formatting may be mismatched between forks and threads due to the automatic padding adjustment of the subroutine name field [...]
+Since it is possible to duplicate the object in a fork or thread, the output formatting may be mismatched between forks and threads due to the automatic padding adjustment of the subroutine name field.
 
 Ways around this are to separately create a Debug::Easy object in each fork or thread, and have them log to separate files.
 
@@ -835,7 +757,7 @@ This program is free software; you can redistribute it and/or modify it under th
 
 =head1 B<VERSION>
 
-Version 2.19
+Version 2.17
 
 =head1 B<SUPPORT>
 
@@ -851,27 +773,27 @@ You can also look for information at:  L<https://github.com/richcsst/Debug-Easy>
 
 =head1 B<AUTHOR COMMENTS>
 
-I coded this module because it filled a gap when I was working for a major chip manufacturing company (which I coded at home on my own time).  It gave the necessary output the other coders asked for, [...]
+I coded this module because it filled a gap when I was working for a major chip manufacturing company (which I coded at home on my own time).  It gave the necessary output the other coders asked for, and fulfilled a need.  It has grown far beyond those days, and I use it every day in my coding work.
 
 If you have any features you wish added, or functionality improved or changed, then I welcome them, and will very likely incorporate them sooner than you think.
 
 =head1 B<LICENSE AND COPYRIGHT>
-
+7
 Copyright 2013-2025 Richard Kelsch.
 
 This program is free software; you can redistribute it and/or modify it under the terms of the the Artistic License (2.0). You may obtain a copy of the full license at:
 
 L<https://perlfoundation.org/artistic-license-20.html>
 
-Any use, modification, and distribution of the Standard or Modified Versions is governed by this Artistic License. By using, modifying or distributing the Package, you accept this license. Do not use, [...]
+Any use, modification, and distribution of the Standard or Modified Versions is governed by this Artistic License. By using, modifying or distributing the Package, you accept this license. Do not use, modify, or distribute the Package, if you do not accept this license.
 
-If your Modified Version has been derived from a Modified Version made by someone other than you, you are nevertheless required to ensure that your Modified Version complies with the requirements of t [...]
+If your Modified Version has been derived from a Modified Version made by someone other than you, you are nevertheless required to ensure that your Modified Version complies with the requirements of this license.
 
 This license does not grant you the right to use any trademark, service mark, tradename, or logo of the Copyright Holder.
 
-This license includes the non-exclusive, worldwide, free-of-charge patent license to make, have made, use, offer to sell, sell, import and otherwise transfer the Package with respect to any patent cla [...]
+This license includes the non-exclusive, worldwide, free-of-charge patent license to make, have made, use, offer to sell, sell, import and otherwise transfer the Package with respect to any patent claims licensable by the Copyright Holder that are necessarily infringed by the Package. If you institute patent litigation (including a cross-claim or counterclaim) against any party alleging that the Package constitutes direct or contributory patent infringement, then this Artistic License to you shall terminate on the date that such litigation is filed.
 
-Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A [...]
+Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =head1 B<TOOTING MY OWN HORN>
 
@@ -886,4 +808,3 @@ And available on CPAN:
  *  BBS::Universal - A Perl based Internet BBS server
 
 =cut
-
