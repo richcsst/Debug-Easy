@@ -35,6 +35,7 @@ SKIP: {
         isa_ok($debug, 'Debug::Easy');
 
         foreach my $count (0 .. 5) {
+#            diag(colored(['bright_white'],$LogLevel[$LEVEL] . ' ' . $LogLevel[$count]));
             $stderr = '';
             if ($count <= $LEVEL) {
                 $debug->debug( $LogLevel[$count], $LogLevel[$count] . ' Single Line Message Test');
