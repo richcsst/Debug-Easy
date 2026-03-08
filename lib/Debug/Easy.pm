@@ -320,31 +320,31 @@ sub new {
     my ($filename, $dir, $suffix) = fileparse($0);
     my $tm   = time;
     my $self = { # The keys are set to upper-case later in the initialization
-        'LogLevel'           => 'ERR',                                                                    # Default is errors only
-        'Type'               => 'fh',                                                                     # Default is a filehandle
-        'Path'               => '/var/log',                                                               # Default path should type be unix
-        'FileHandle'         => \*STDERR,                                                                 # Default filehandle is STDERR
-        'MasterStart'        => $tm,
-        'ANY_LastStamp'      => $tm,                                                                      # Initialize main benchmark
-        'ERR_LastStamp'      => $tm,                                                                      # Initialize the ERR benchmark
-        'WARN_LastStamp'     => $tm,                                                                      # Initialize the WARN benchmark
-        'INFO_LastStamp'     => $tm,                                                                      # Initialize the INFO benchmark
-        'NOTICE_LastStamp'   => $tm,                                                                      # Initialize the NOTICE benchmark
-        'DEBUG_LastStamp'    => $tm,                                                                      # Initialize the DEBUG benchmark
-        'DEBUGMAX_LastStamp' => $tm,                                                                      # Initialize the DEBUGMAX benchmark
-        'Color'              => TRUE,                                                                     # Default to colorized output
-        'DateStamp'          => colored(['yellow'], '%date%'),
-        'TimeStamp'          => colored(['yellow'], '%time%'),
-        'Epoch'              => colored(['cyan'],   '%epoch%'),
-        'Padding'            => -20,                                                                      # Default padding is 20 spaces
-        'Lines-Padding'      => -2,
-        'Subroutine-Padding' =>  0,
-        'Line-Padding'       =>  0,
+        'LOGLEVEL'           => 'ERR',                                                                    # Default is errors only
+        'TYPE'               => 'fh',                                                                     # Default is a filehandle
+        'PATH'               => '/var/log',                                                               # Default path should type be unix
+        'FILEHANDLE'         => \*STDERR,                                                                 # Default filehandle is STDERR
+        'MASTERSTART'        => $tm,
+        'ANY_LASTSTAMP'      => $tm,                                                                      # Initialize main benchmark
+        'ERR_LASTSTAMP'      => $tm,                                                                      # Initialize the ERR benchmark
+        'WARN_LASTSTAMP'     => $tm,                                                                      # Initialize the WARN benchmark
+        'INFO_LASTSTAMP'     => $tm,                                                                      # Initialize the INFO benchmark
+        'NOTICE_LASTSTAMP'   => $tm,                                                                      # Initialize the NOTICE benchmark
+        'DEBUG_LASTSTAMP'    => $tm,                                                                      # Initialize the DEBUG benchmark
+        'DEBUGMAX_LASTSTAMP' => $tm,                                                                      # Initialize the DEBUGMAX benchmark
+        'COLOR'              => TRUE,                                                                     # Default to colorized output
+        'DATESTAMP'          => colored(['yellow'], '%date%'),
+        'TIMESTAMP'          => colored(['yellow'], '%time%'),
+        'EPOCH'              => colored(['cyan'],   '%epoch%'),
+        'PADDING'            => -20,                                                                      # Default padding is 20 spaces
+        'LINES-PADDING'      => -2,
+        'SUBROUTINE-PADDING' =>  0,
+        'LINE-PADDING'       =>  0,
         'PARENT'             => $$,
-        'GLOBAL-Prefix'      => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
-        'DEBUGMAX-Prefix'    => '%Date% %Time% %Benchmark% %Loglevel%[%Module%][%Lines%] ',
-        'Filename'           => '[' . colored(['magenta'], $filename) . ']',
-        'ANSILevel'          => {
+        'GLOBAL-PREFIX'      => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
+        'DEBUGMAX-PREFIX'    => '%Date% %Time% %Benchmark% %Loglevel%[%Module%][%Lines%] ',
+        'FILENAME'           => '[' . colored(['magenta'], $filename) . ']',
+        'ANSILEVEL'          => {
             'ERR'      => colored(['white on_red'],        '[ ERROR  ]'),
             'WARN'     => colored(['black on_yellow'],     '[WARNING ]'),
             'NOTICE'   => colored(['yellow'],              '[ NOTICE ]'),
@@ -411,26 +411,24 @@ sub new {
     # We will leave dynamic tokens (%date%, %time%, %epoch%, %Benchmark%) for runtime.
     $self->{'_PREFIX_TEMPLATES'} = {};
     foreach my $lvl (@Levels) {
-        my $tmpl = $self->{"$lvl-PREFIX"} . ''; # copy
+        my $tmpl     = $self->{"$lvl-PREFIX"} . ''; # copy
         my $forked   = ($PARENT ne $$) ? 'C' : 'P';
         my $threaded = 'PT-';
         if ($self->{'USE_THREADS'}) {
-            my $tid = threads->can('tid') ? threads->tid() : 0;
+            my $tid   = threads->can('tid') ? threads->tid() : 0;
             $threaded = ($tid && $tid > 0) ? sprintf('T%02d', $tid) : 'PT-';
         }
 
-        # Static substitutions
-        $tmpl =~ s/\%PID\%/$$/gi;
-        $tmpl =~ s/\%Loglevel\%/$self->{'ANSILEVEL'}->{$lvl}/gi;
-        $tmpl =~ s/\%Filename\%/$self->{'FILENAME'}/gi;
-        $tmpl =~ s/\%Fork\%/$forked/gi;
-        $tmpl =~ s/\%Thread\%/$threaded/gi;
+		my %mp = (
+			'PID'      => $$,
+			'Loglevel' => $self->{'ANSILEVEL'}->{$lvl},
+			'Filename' => $self->{'FILENAME'},
+			'Fork'     => $forked,
+			'Thread'   => $threaded,
+		);
 
-        # Leave dynamic tokens for runtime:
-        # %Lines%, %Lastline%, %Subroutine%, %Module% (caller-dependent)
-        # %Date%, %Time%, %Epoch% (colorized stamp placeholders)
-        # %date%, %time%, %epoch% (raw values)
-        # %Benchmark%
+        # Static substitutions
+		$tmpl =~ s/\%(PID|Loglevel|Filename|Fork|Thread)\%/$mp{$1}/gei;
 
         $self->{'_PREFIX_TEMPLATES'}->{$lvl} = $tmpl;
     }
@@ -483,12 +481,12 @@ sub debug {
     return if ($self->{'LOGLEVEL_VALUE'} < $LevelLogic{$level});
 
     my @messages;
-    if (ref($msgs) eq 'SCALAR' || ref($msgs) eq '') {
-        push(@messages, $msgs);
+	if (ref($msgs) =~ /HASH|CODE|FORMAT|IO/) {
+        push(@messages, _send_to_Dumper($msgs));
     } elsif (ref($msgs) eq 'ARRAY') {
         @messages = @{$msgs};
     } else {
-        push(@messages, _send_to_Dumper($msgs));
+        push(@messages, $msgs);
     }
     my ($sname, $cline, $nested, $subroutine, $thisBench, $thisBench2, $sline, $short) = ('', '', '', '', '', '', '', '');
     # Figure out the proper caller tree and line number ladder
@@ -630,26 +628,22 @@ sub _format_line {
     $tmpl = $self->{"$level-PREFIX"} . '' unless defined $tmpl; # Fallback safety
 
     # Clone template since we mutate
-    my $prefix = $tmpl . '';
+    my $prefix = "$tmpl";
 
-    # Apply caller-derived fields only if present in the effective level prefix
-    if ($prefix =~ /\%Lines\%/i)     { $prefix =~ s/\%Lines\%/$cline/gi; }
-    if ($prefix =~ /\%Lastline\%/i)  { $prefix =~ s/\%Lastline\%/$sline/gi; }
-    if ($prefix =~ /\%Subroutine\%/i){ $prefix =~ s/\%Subroutine\%/$shortsub/gi; }
-    if ($prefix =~ /\%Module\%/i)    { $prefix =~ s/\%Module\%/$subroutine/gi; }
-
-    # Apply dynamic tokens
-    if ($first) {
-        $prefix =~ s/\%Benchmark\%/$thisBench/gi;
-    } else {
-        $prefix =~ s/\%Benchmark\%/$thisBench2/gi;
-    }
-    $prefix =~ s/\%Date\%/$self->{'DATESTAMP'}/gi;
-    $prefix =~ s/\%Time\%/$self->{'TIMESTAMP'}/gi;
-    $prefix =~ s/\%Epoch\%/$self->{'EPOCH'}/gi;
-    $prefix =~ s/\%date\%/$Date/gi;
-    $prefix =~ s/\%time\%/$Time/gi;
-    $prefix =~ s/\%epoch\%/$epoch/gi;
+	my %mp = ( # Create a temporary index
+		'Benchmark'  => ($first) ? $thisBench : $thisBench2,
+		'Lines'      => $cline,
+		'Lastline'   => $cline,
+		'Subroutine' => $shortsub,
+		'Module'     => $subroutine,
+		'Date'       => $self->{'DATESTAMP'},
+		'Time'       => $self->{'TIMESTAMP'},
+		'Epoch'      => $self->{'EPOCH'},
+		'date'       => $Date,
+		'time'       => $Time,
+		'epoch'      => $epoch,
+	);
+	$prefix =~ s/\%(Lines|Lastline|Subroutine|Module|Date|Time|Epoch|date|time|epoch)\%/$mp{$1}/gei;
 
     return "$prefix$padding$msg";
 }
