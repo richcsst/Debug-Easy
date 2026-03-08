@@ -319,7 +319,7 @@ sub new {
     my $class = shift;
     my ($filename, $dir, $suffix) = fileparse($0);
     my $tm   = time;
-    my $self = {
+    my $self = { # The keys are set to upper-case later in the initialization
         'LogLevel'           => 'ERR',                                                                    # Default is errors only
         'Type'               => 'fh',                                                                     # Default is a filehandle
         'Path'               => '/var/log',                                                               # Default path should type be unix
@@ -341,12 +341,7 @@ sub new {
         'Subroutine-Padding' =>  0,
         'Line-Padding'       =>  0,
         'PARENT'             => $$,
-        'Prefix'             => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
-        'ERR-Prefix'         => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
-        'WARN-Prefix'        => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
-        'INFO-Prefix'        => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
-        'NOTICE-Prefix'      => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
-        'DEBUG-Prefix'       => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
+        'GLOBAL-Prefix'      => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
         'DEBUGMAX-Prefix'    => '%Date% %Time% %Benchmark% %Loglevel%[%Module%][%Lines%] ',
         'Filename'           => '[' . colored(['magenta'], $filename) . ']',
         'ANSILevel'          => {
@@ -408,8 +403,8 @@ sub new {
         $self->{'FILENAME'}  = '[' . $filename . ']'; # Ensure filename without color
     }
 
-    foreach my $lvl (@Levels) {
-        $self->{"$lvl-PREFIX"} = $self->{'PREFIX'} unless (exists($self->{"$lvl-PREFIX"}) && defined($self->{"$lvl-PREFIX"}));
+    foreach my $lvl (@Levels) { # Set any undefined prefix to the global prefix
+        $self->{"$lvl-PREFIX"} = $self->{'GLOBAL-PREFIX'} unless (exists($self->{"$lvl-PREFIX"}) && defined($self->{"$lvl-PREFIX"}));
     }
 
     # Precompute static prefix templates per level to minimize per-line substitutions.
@@ -499,7 +494,7 @@ sub debug {
     # Figure out the proper caller tree and line number ladder
     # But only if it's part of the effective level prefix, else don't waste time.
 	# The effective level prefix can be different for each call to debug.  It cannot be cached.
-    my $effective_prefix = $self->{ $level . '-PREFIX' } || $self->{'PREFIX'};
+    my $effective_prefix = $self->{ $level . '-PREFIX' } || $self->{'GLOBAL-PREFIX'};
     if ($effective_prefix =~ /\%(Subroutine|Module|Lines|Lastline)\%/i) {    # %P = Subroutine, %l = Line number(s)
         my $package = '';
         my $count   = 1;
