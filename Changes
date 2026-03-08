@@ -388,3 +388,7 @@ Revision history for Debug-Easy
 
         Numerous optimizations to increase the speed of execution to give as
 		little impact as possible to the main script.
+
+2.23    Mar 07, 2026
+
+        Fixed a typo that ignored case where case was important.

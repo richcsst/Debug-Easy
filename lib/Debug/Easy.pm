@@ -643,7 +643,7 @@ sub _format_line {
 		'time'       => $Time,
 		'epoch'      => $epoch,
 	);
-	$prefix =~ s/\%(Lines|Lastline|Subroutine|Module|Date|Time|Epoch|date|time|epoch)\%/$mp{$1}/gei;
+	$prefix =~ s/\%(Lines|Lastline|Subroutine|Module|Date|Time|Epoch|date|time|epoch)\%/$mp{$1}/ge;
 
     return "$prefix$padding$msg";
 }
