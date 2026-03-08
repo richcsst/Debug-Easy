@@ -1,4 +1,4 @@
-package Debug::Easy 2.21;
+package Debug::Easy 2.22;
 
 use strict;
 # use warnings;
@@ -342,10 +342,13 @@ sub new {
         'Line-Padding'       =>  0,
         'PARENT'             => $$,
         'Prefix'             => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
+        'ERR-Prefix'         => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
+        'WARN-Prefix'        => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
+        'INFO-Prefix'        => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
+        'NOTICE-Prefix'      => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
+        'DEBUG-Prefix'       => '%Date% %Time% %Benchmark% %Loglevel%[%Subroutine%][%Lastline%] ',
         'DEBUGMAX-Prefix'    => '%Date% %Time% %Benchmark% %Loglevel%[%Module%][%Lines%] ',
         'Filename'           => '[' . colored(['magenta'], $filename) . ']',
-#        'TIMEZONE'           => DateTime::TimeZone->new(name => 'local'),
-#        'DATETIME'           => DateTime->now('time_zone' => DateTime::TimeZone->new(name => 'local')),
         'ANSILevel'          => {
             'ERR'      => colored(['white on_red'],        '[ ERROR  ]'),
             'WARN'     => colored(['black on_yellow'],     '[WARNING ]'),
@@ -384,14 +387,11 @@ sub new {
     $self->{'LOGLEVEL_VALUE'} = $LevelLogic{ $self->{'LOGLEVEL'} };
 
     # Cache thread support check for hot path
-    my $use_threads = ($Config{'useithreads'} && eval { require threads; 1 }) ? 1 : 0;
-    $self->{'USE_THREADS'} = $use_threads;
+    $self->{'USE_THREADS'} = ($Config{'useithreads'}) ? 1 : 0;
 
     # This instructs the ANSIColor library to turn off coloring,
     # if the Color attribute is set to zero.
     unless ($self->{'COLOR'}) {
-#        local $ENV{'ANSI_COLORS_DISABLED'} = TRUE; # Only this module should be set
-
         # If COLOR is FALSE, then clear color data from ANSILEVEL, as these were
         # defined before color was turned off.
         $self->{'ANSILEVEL'} = {
@@ -493,22 +493,12 @@ sub debug {
     } elsif (ref($msgs) eq 'ARRAY') {
         @messages = @{$msgs};
     } else {
-        push(@messages, Dumper($msgs));
+        push(@messages, _send_to_Dumper($msgs));
     }
     my ($sname, $cline, $nested, $subroutine, $thisBench, $thisBench2, $sline, $short) = ('', '', '', '', '', '', '', '');
-    # Set up dumper variables for friendly output
-
-    local $Data::Dumper::Terse         = TRUE;
-    local $Data::Dumper::Indent        = TRUE;
-    local $Data::Dumper::Useqq         = TRUE;
-    local $Data::Dumper::Deparse       = TRUE;
-    local $Data::Dumper::Quotekeys     = TRUE;
-    local $Data::Dumper::Trailingcomma = TRUE;
-    local $Data::Dumper::Sortkeys      = TRUE;
-    local $Data::Dumper::Purity        = TRUE;
-
     # Figure out the proper caller tree and line number ladder
     # But only if it's part of the effective level prefix, else don't waste time.
+	# The effective level prefix can be different for each call to debug.  It cannot be cached.
     my $effective_prefix = $self->{ $level . '-PREFIX' } || $self->{'PREFIX'};
     if ($effective_prefix =~ /\%(Subroutine|Module|Lines|Lastline)\%/i) {    # %P = Subroutine, %l = Line number(s)
         my $package = '';
@@ -562,7 +552,6 @@ sub debug {
 
     # Figure out the benchmarks, but only if it is in the prefix
     if ($effective_prefix =~ /\%Benchmark\%/i) {
-
         # For multiline output, only output the bench data on the first line.  Use padded spaces for the rest.
         $thisBench  = sprintf('%7s', sprintf(' %.02f', time - $self->{'ANY_LASTSTAMP'}));
         $thisBench2 = ' ' x length($thisBench);
@@ -572,31 +561,13 @@ sub debug {
     # Buffer lines to reduce syscalls for multi-line messages
     my $buffer = '';
 
-    foreach my $msg (@messages) {    # Loop through each line of output and format accordingly.
-        if (ref($msg) ne '') {
-            $msg = Dumper($msg);
-        }
-        if ($msg =~ /\n/s) {         # If the line contains newlines, then it too must be split into multiple lines.
-            my @message = split(/\n/, $msg);
-            foreach my $line (@message) {    # Loop through the split lines and format accordingly.
-                $buffer .= $self->_format_line($level, $nested, $line, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $short);
-                $buffer .= "\n";
-                $first = FALSE;              # Clear the first line flag.
-            }
-        } else {    # This line does not contain newlines.  Treat it as a single line.
-            $buffer .= $self->_format_line($level, $nested, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $short);
-            $buffer .= "\n";
-        }
-        $first = FALSE;    # Clear the first line flag.
-    } ## end foreach my $msg (@messages)
-
     my $fh = $self->{'FILEHANDLE'};
-    if ($level eq 'INFO' && $self->{'LOGLEVEL'} eq 'VERBOSE') {    # Trap verbose flag and temporarily drop the prefix.
+    if ($level eq 'INFO' && $self->{'LOGLEVEL'} eq 'VERBOSE') {
         # For verbose, we need to print messages without prefixes.
         # Extract lines and print only message contents.
         foreach my $msg (@messages) {
             if (ref($msg) ne '') {
-                $msg = Dumper($msg);
+                $msg = _send_to_Dumper($msg);
             }
             if ($msg =~ /\n/s) {
                 my @message = split(/\n/, $msg);
@@ -607,21 +578,57 @@ sub debug {
                 print $fh "$msg\n";
             }
         }
-    } elsif ($level eq 'DEBUGMAX') {                               # Special version of DEBUG.  Extremely verbose debugging and quite noisy
-        if ($self->{'LOGLEVEL'} eq 'DEBUGMAX') {
+    } else {
+        my ($sec,$min,$hour,$mday,$mon,$year) = localtime();
+        my $Date     = sprintf('%02d/%02d/%04d', $mday, ($mon + 1), (1900 + $year));
+        my $Time     = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
+        my $epoch    = time;
+
+        foreach my $msg (@messages) {    # Loop through each line of output and format accordingly.
+            if (ref($msg) =~ /HASH|ARRAY|CODE|FORMAT|IO/) {
+                $msg = _send_to_Dumper($msg);
+            }
+            if ($msg =~ /\n/s) {         # If the line contains newlines, then it too must be split into multiple lines.
+                my @message = split(/\n/, $msg);
+                foreach my $line (@message) {    # Loop through the split lines and format accordingly.
+                    $buffer .= $self->_format_line($level, $nested, $line, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $short, $Date, $Time, $epoch);
+                    $buffer .= "\n";
+                    $first = FALSE;              # Clear the first line flag.
+                }
+            } else {    # This line does not contain newlines.  Treat it as a single line.
+                $buffer .= $self->_format_line($level, $nested, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $short);
+                $buffer .= "\n";
+            }
+            $first = FALSE;    # Clear the first line flag.
+        } ## end foreach my $msg (@messages)
+        if ($level eq 'DEBUGMAX') {                               # Special version of DEBUG.  Extremely verbose debugging and quite noisy
+            if ($self->{'LOGLEVEL'} eq 'DEBUGMAX') {
+                print $fh $buffer;
+            }
+        } else {
             print $fh $buffer;
         }
-    } else {
-        print $fh $buffer;
     }
 
     $self->{'ANY_LASTSTAMP'} = time;
     $self->{ $level . '_LASTSTAMP' } = time;
 } ## end sub debug
 
+sub _send_to_Dumper {
+    local $Data::Dumper::Terse         = TRUE;
+    local $Data::Dumper::Indent        = TRUE;
+    local $Data::Dumper::Useqq         = TRUE;
+    local $Data::Dumper::Deparse       = TRUE;
+    local $Data::Dumper::Quotekeys     = TRUE;
+    local $Data::Dumper::Trailingcomma = TRUE;
+    local $Data::Dumper::Sortkeys      = TRUE;
+    local $Data::Dumper::Purity        = TRUE;
+    return(Dumper(@_));
+}
+
 # Internal: format a single line for logging (without printing)
 sub _format_line {
-    my ($self, $level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub) = @_;
+    my ($self, $level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub, $Date, $Time, $epoch) = @_;
 
     # Build prefix based on precomputed template and runtime substitutions
     my $tmpl = $self->{'_PREFIX_TEMPLATES'}->{$level};
@@ -635,14 +642,6 @@ sub _format_line {
     if ($prefix =~ /\%Lastline\%/i)  { $prefix =~ s/\%Lastline\%/$sline/gi; }
     if ($prefix =~ /\%Subroutine\%/i){ $prefix =~ s/\%Subroutine\%/$shortsub/gi; }
     if ($prefix =~ /\%Module\%/i)    { $prefix =~ s/\%Module\%/$subroutine/gi; }
-
-    my ($sec,$min,$hour,$mday,$mon,$year) = localtime();
-#    my $timezone = $self->{'TIMEZONE'} || DateTime::TimeZone->new(name => 'local');
-#    my $dt       = $self->{'DATETIME'};
-#    my $Date     = sprintf('%02d %03s %03s, %04d', $mday, $months[$mon], $days[$wday], (1900 + $year));
-    my $Date     = sprintf('%02d/%02d/%04d', $mday, ($mon + 1), (1900 + $year));
-    my $Time     = sprintf('%02d:%02d:%02d', $hour, $min, $sec);
-    my $epoch    = time;
 
     # Apply dynamic tokens
     if ($first) {
@@ -659,23 +658,6 @@ sub _format_line {
 
     return "$prefix$padding$msg";
 }
-
-sub _send_to_logger {    # Legacy path: retained for backward compatibility but routed via _format_line
-    my ($self, $level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub) = @_;
-
-    my $fh = $self->{'FILEHANDLE'};
-    if ($level eq 'INFO' && $self->{'LOGLEVEL'} eq 'VERBOSE') {    # Trap verbose flag and temporarily drop the prefix.
-        print $fh "$msg\n";
-    } elsif ($level eq 'DEBUGMAX') {                               # Special version of DEBUG.  Extremely verbose debugging and quite noisy
-        if ($self->{'LOGLEVEL'} eq 'DEBUGMAX') {
-            my $line = $self->_format_line($level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub);
-            print $fh "$line\n";
-        }
-    } else {
-        my $line = $self->_format_line($level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub);
-        print $fh "$line\n";
-    }
-} ## end sub _send_to_logger
 
 =head2 B<ERR> or B<ERROR>
 
