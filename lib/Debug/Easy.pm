@@ -1,4 +1,4 @@
-package Debug::Easy 2.23;
+package Debug::Easy 2.24;
 
 use strict;
 # use warnings;
@@ -488,7 +488,7 @@ sub debug {
     } else {
         push(@messages, $msgs);
     }
-    my ($sname, $cline, $nested, $subroutine, $thisBench, $thisBench2, $sline, $short) = ('', '', '', '', '', '', '', '');
+    my ($sname, $cline, $nested, $subroutine, $thisBench, $sline, $short) = ('', '', '', '', '', '', '');
     # Figure out the proper caller tree and line number ladder
     # But only if it's part of the effective level prefix, else don't waste time.
 	# The effective level prefix can be different for each call to debug.  It cannot be cached.
@@ -547,7 +547,6 @@ sub debug {
     if ($effective_prefix =~ /\%Benchmark\%/i) {
         # For multiline output, only output the bench data on the first line.  Use padded spaces for the rest.
         $thisBench  = sprintf('%7s', sprintf(' %.02f', time - $self->{'ANY_LASTSTAMP'}));
-        $thisBench2 = ' ' x length($thisBench);
     } ## end if ($effective_prefix ...)
     my $first = TRUE;                # Set the first line flag.
 
@@ -584,12 +583,12 @@ sub debug {
             if ($msg =~ /\n/s) {         # If the line contains newlines, then it too must be split into multiple lines.
                 my @message = split(/\n/, $msg);
                 foreach my $line (@message) {    # Loop through the split lines and format accordingly.
-                    $buffer .= $self->_format_line($level, $nested, $line, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $short, $Date, $Time, $epoch);
+                    $buffer .= $self->_format_line($level, $nested, $line, $first, $thisBench, $subroutine, $cline, $sline, $short, $Date, $Time, $epoch);
                     $buffer .= "\n";
                     $first = FALSE;              # Clear the first line flag.
                 }
             } else {    # This line does not contain newlines.  Treat it as a single line.
-                $buffer .= $self->_format_line($level, $nested, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $short);
+                $buffer .= $self->_format_line($level, $nested, $msg, $first, $thisBench, $subroutine, $cline, $sline, $short);
                 $buffer .= "\n";
             }
             $first = FALSE;    # Clear the first line flag.
@@ -621,7 +620,7 @@ sub _send_to_Dumper {
 
 # Internal: format a single line for logging (without printing)
 sub _format_line {
-    my ($self, $level, $padding, $msg, $first, $thisBench, $thisBench2, $subroutine, $cline, $sline, $shortsub, $Date, $Time, $epoch) = @_;
+    my ($self, $level, $padding, $msg, $first, $thisBench, $subroutine, $cline, $sline, $shortsub, $Date, $Time, $epoch) = @_;
 
     # Build prefix based on precomputed template and runtime substitutions
     my $tmpl = $self->{'_PREFIX_TEMPLATES'}->{$level};
@@ -631,7 +630,7 @@ sub _format_line {
     my $prefix = "$tmpl";
 
 	my %mp = ( # Create a temporary index
-		'Benchmark'  => ($first) ? $thisBench : $thisBench2,
+		'Benchmark'  => ($first) ? $thisBench : ' ' x length($thisBench),
 		'Lines'      => $cline,
 		'Lastline'   => $cline,
 		'Subroutine' => $shortsub,

@@ -392,3 +392,7 @@ Revision history for Debug-Easy
 2.23    Mar 07, 2026
 
         Fixed a typo that ignored case where case was important.
+
+2.24    Mar 07, 2026
+
+        Removed an unneeded variable.
