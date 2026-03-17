@@ -2,7 +2,7 @@
 
 # Richard Kelsch
 
-![Author Richard Kelsch](images/author.jpg?raw=true "Author Richard Kelsch")
+![Author Richard Kelsch](author.jpg?raw=true "Author Richard Kelsch")
 
 The author of this utility, has been a Perl coder for well over three decades.  His specialization was code optimization and multi-threading and did it quite well.
 
