@@ -846,7 +846,6 @@ Perl modules available on github - L<https://github.com/richcsst>
 
 And available on CPAN:
 
- *  BBS::Universal
  *  Debug::Easy
  *  Graphics::Framebuffer
  *  Term::ANSIEncode
