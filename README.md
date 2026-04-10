@@ -33,8 +33,8 @@ After installing, you can find documentation for this module with the perldoc co
 
 You can also look for information at:
 
-* **GitHub** - https://github.com/richcsst/Debug-Easy
-* **GitHub Clone** - https://github.com/richcsst/Debug-Easy.git
+* **GitHub** - [https://github.com/richcsst/Debug-Easy](https://github.com/richcsst/Debug-Easy)
+* **GitHub Clone** - [https://github.com/richcsst/Debug-Easy.git](https://github.com/richcsst/Debug-Easy.git)
 
   GitHub will always have the latest version available, even before CPAN.
 
@@ -44,4 +44,4 @@ Copyright © 2013-2025 Richard Kelsch
 
 This program is free software; you can redistribute it and/or modify it under the terms of the the Artistic License (2.0). You may obtain a copy of the full license at:
 
-* **Artistic License** - https://www.perlfoundation.org/artistic_license_2_0
+* **Artistic License** - [https://www.perlfoundation.org/artistic_license_2_0](https://www.perlfoundation.org/artistic_license_2_0)
