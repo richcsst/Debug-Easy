@@ -11,4 +11,7 @@ MANIFEST
 README.md
 AUTHOR.md
 t/01-all-levels.t
+images/TinyPrint.jpg
+images/author.jpg
+images/pink.jpg
 LICENSE
