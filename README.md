@@ -2,6 +2,8 @@
 
 ![Debug::Easy Logo](images/Debug-Easy.png?raw=true "Debug::Easy")
 
+![Divider](images/pink.jpg?raw=true "Divider")
+
 ## SYNOPSIS
 
    ```perl
@@ -52,6 +54,8 @@
    $debug->INFO([\@messages]);
    ```
 
+![Divider](images/pink.jpg?raw=true "Divider")
+
 ## DESCRIPTION
 
    This module makes debugging Perl code much easier and even allows you to retain the debugging code without interference in production.  Using an options switch, you can enable, disable or adjust the level of debugging.
@@ -59,6 +63,8 @@
    Typically, debugging runs at errors only level, but you can have verbose, ordinary debugging or quite noisy (max) debugging for very difficult problems.  Add the lines to your code and leave them there.
 
    Output can be using ANSI color codes (default), but can also be turned off to be ordinary ASCII text.  Output is timestamped and location logged as well.
+
+![Divider](images/pink.jpg?raw=true "Divider")
 
 ## INSTALLATION
 
@@ -71,9 +77,13 @@
     [sudo] make install
    ```
 
+![Divider](images/pink.jpg?raw=true "Divider")
+
 ## SAMPLE CODE
 
    The "examples" directory in the tar package has two code examples on how to use this module.
+
+![Divider](images/pink.jpg?raw=true "Divider")
 
 ## SUPPORT AND DOCUMENTATION
 
@@ -87,6 +97,8 @@
    * **GitHub Clone** - [https://github.com/richcsst/Debug-Easy.git](https://github.com/richcsst/Debug-Easy.git)
 
    GitHub will always have the latest version available, even before CPAN.
+
+![Divider](images/pink.jpg?raw=true "Divider")
 
 ## LICENSE AND COPYRIGHT
 
