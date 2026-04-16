@@ -1,4 +1,4 @@
-package Debug::Easy 2.24;
+package Debug::Easy 2.25;
 
 use strict;
 # use warnings;
@@ -635,14 +635,14 @@ sub _format_line {
 		'Lastline'   => $cline,
 		'Subroutine' => $shortsub,
 		'Module'     => $subroutine,
+		'date'      => $Date,
+		'time'      => $Time,
+		'epoch'     => $epoch,
 		'Date'       => $self->{'DATESTAMP'},
 		'Time'       => $self->{'TIMESTAMP'},
 		'Epoch'      => $self->{'EPOCH'},
-		'date'       => $Date,
-		'time'       => $Time,
-		'epoch'      => $epoch,
 	);
-	$prefix =~ s/\%(Lines|Lastline|Subroutine|Module|Date|Time|Epoch|date|time|epoch)\%/$mp{$1}/ge;
+	$prefix =~ s/\%(Benchmark|Subroutine|Lines|Lastline|Subroutine|Module|Date|Time|Epoch|date_|time_|epoch_)\%/$mp{$1}/ge;
 
     return "$prefix$padding$msg";
 }
@@ -846,10 +846,10 @@ Perl modules available on github - L<https://github.com/richcsst>
 
 And available on CPAN:
 
- *  Debug::Easy
- *  Graphics::Framebuffer
- *  Term::ANSIEncode
- *  BBS::Universal - A Perl based Internet BBS server
+ *  Common::CodingTools - Common constants and functions for programmers - L<https://metacpan.org/pod/Common::CodingTools>
+ *  Debug::Easy - Easy Perl debugging that can go into production without noise - L<https://metacpan.org/pod/Debug::Easy>
+ *  Graphics::Framebuffer - Graphics module for drawing on the Linux framebuffer - L<https://metacpan.org/pod/Graphics::Framebuffer>
+ *  Term::ANSIEncode - Special markup language for ANSI output - L<https://metacpan.org/pod/Term::ANSIEncode>
 
 =cut
 
