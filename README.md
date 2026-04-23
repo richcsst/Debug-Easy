@@ -16,7 +16,7 @@
 
    The following is a list, in order of level, of the logging methods:
 
-   * **ERR** or **ERROR**        - Error
+   * **ERR** or **ERROR**        - Error (Use this level for production code as it only logs errors)
    * **WARN** or **WARNING**     - Warning
    * **NOTICE** or **ATTENTION** - Notice
    * **INFO** or **INFORMATION** - Information
