@@ -16,13 +16,13 @@
 
    The following is a list, in order of level, of the logging methods:
 
-   * **ERR** or **ERROR**        - Error (Use this level for production code as it only logs errors)
-   * **WARN** or **WARNING**     - Warning
-   * **NOTICE** or **ATTENTION** - Notice
-   * **INFO** or **INFORMATION** - Information
+   * **ERR** or **ERROR**        - Error, shows only ERR messages (Use this level for production code as it only logs errors)
+   * **WARN** or **WARNING**     - Warning, shows ERR and WARN messages
+   * **NOTICE** or **ATTENTION** - Notice, shows ERR, WARN and NOTICE messages
+   * **INFO** or **INFORMATION** - Information, shows ERR, WARN, NOTICE and INFO messages
    * **VERBOSE**                 - Special version of INFO that does not output any logging headings.  Very useful for verbose modes in your scripts.
-   * **DEBUG**                   - Level 1 debugging messages, intended for simple helpful messages.
-   * **DEBUGMAX**                - Level 2 debugging messages, typically much more terse like dumping variables.
+   * **DEBUG**                   - Level 1 debugging messages, intended for simple helpful messages.  Shows ERR, WARN, NOTICE, INFO and DEBUG messages.
+   * **DEBUGMAX**                - Level 2 debugging messages, typically much more terse like dumping variables.  Shows ERR, WARN, NOTICE, INFO, DEBUG and DEBUGMAX messages.
 
    The parameter is either a string or a reference to an array of strings to output as multiple lines.
 
