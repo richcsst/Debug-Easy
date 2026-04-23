@@ -89,7 +89,9 @@
 
    After installing, you can find documentation for this module with the perldoc command.
 
-   `perldoc Debug::Easy`
+   ```bash
+   perldoc Debug::Easy
+   ```
 
    You can also look for information at:
 
