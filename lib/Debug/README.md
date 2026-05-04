@@ -1,7 +1,7 @@
 # Debug::Easy
 
-![Debug::Easy Logo](../../images/Debug-Easy.png?raw=true "Debug::Easy")
+![Debug::Easy Logo](../../pics/Debug-Easy.png?raw=true "Debug::Easy")
 
-![Divider](../../images/pink.jpg?raw=true "Divider")
+![Divider](../../pics/pink.jpg?raw=true "Divider")
 
 ## Module

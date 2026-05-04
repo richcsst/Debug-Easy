@@ -1,8 +1,8 @@
 # Debug::Easy
 
-![Debug::Easy Logo](images/Debug-Easy.png?raw=true "Debug::Easy")
+![Debug::Easy Logo](pics/Debug-Easy.png?raw=true "Debug::Easy")
 
-![Divider](images/pink.jpg?raw=true "Divider")
+![Divider](pics/pink.jpg?raw=true "Divider")
 
 ## SYNOPSIS
 
@@ -54,7 +54,7 @@
    $debug->INFO([\@messages]);
    ```
 
-![Divider](images/pink.jpg?raw=true "Divider")
+![Divider](pics/pink.jpg?raw=true "Divider")
 
 ## DESCRIPTION
 
@@ -64,7 +64,7 @@
 
    Output can be using ANSI color codes (default), but can also be turned off to be ordinary ASCII text.  Output is timestamped and location logged as well.
 
-![Divider](images/pink.jpg?raw=true "Divider")
+![Divider](pics/pink.jpg?raw=true "Divider")
 
 ## INSTALLATION
 
@@ -77,13 +77,13 @@
     [sudo] make install
    ```
 
-![Divider](images/pink.jpg?raw=true "Divider")
+![Divider](pics/pink.jpg?raw=true "Divider")
 
 ## SAMPLE CODE
 
    The "examples" directory in the tar package has two code examples on how to use this module.
 
-![Divider](images/pink.jpg?raw=true "Divider")
+![Divider](pics/pink.jpg?raw=true "Divider")
 
 ## SUPPORT AND DOCUMENTATION
 
@@ -100,7 +100,7 @@
 
    GitHub will always have the latest version available, even before CPAN.
 
-![Divider](images/pink.jpg?raw=true "Divider")
+![Divider](pics/pink.jpg?raw=true "Divider")
 
 ## LICENSE AND COPYRIGHT
 
