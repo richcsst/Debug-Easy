@@ -1,6 +1,6 @@
 # Debug::Easy
 
-[![Debug::Easy Logo](pics/Debug-Easy.png?raw=true "Debug::Easy")](https://www.youtube.com/watch?v=IH_TYTW3HZ8)
+[![Debug::Easy Click for the jingle](pics/Debug-Easy.png?raw=true "Debug::Easy")](https://www.youtube.com/watch?v=IH_TYTW3HZ8)
 
 ![Divider](pics/pink.jpg?raw=true "Divider")
 
