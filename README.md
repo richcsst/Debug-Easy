@@ -20,7 +20,7 @@
    * **WARN** or **WARNING**     - Warning, shows ERR and WARN messages
    * **NOTICE** or **ATTENTION** - Notice, shows ERR, WARN and NOTICE messages
    * **INFO** or **INFORMATION** - Information, shows ERR, WARN, NOTICE and INFO messages
-   * **VERBOSE**                 - Special version of INFO that does not output any logging headings.  Very useful for verbose modes in your scripts.
+   * **VERBOSE**                 - Special version of INFO that does not output any logging headings and prints to STDOUT instead of STDERR.  Very useful for verbose modes in your scripts.
    * **DEBUG**                   - Level 1 debugging messages, intended for simple helpful messages.  Shows ERR, WARN, NOTICE, INFO and DEBUG messages.
    * **DEBUGMAX**                - Level 2 debugging messages, typically much more terse like dumping variables.  Shows ERR, WARN, NOTICE, INFO, DEBUG and DEBUGMAX messages.
 
@@ -63,6 +63,12 @@
    Typically, debugging runs at errors only level, but you can have verbose, ordinary debugging or quite noisy (max) debugging for very difficult problems.  Add the lines to your code and leave them there.
 
    Output can be using ANSI color codes (default), but can also be turned off to be ordinary ASCII text.  Output is timestamped and location logged as well.
+
+   You development, staging and production environments can be configured to set the appropriate debug level to run in without touching the actual code.  Very handy.
+
+   \* You can turn on DEBUGGING in production code without actually touching the code.  This helps find an issue, if the issue is only happening in production.  Once you find it, make the change in your development environment, then test it in your staging environment and finally push it to production if all is well.
+
+   \* **DO NOT EVER EVER EVER MODIFY PRODUCTION CODE, no matter the excuse.**
 
 ![Divider](pics/pink.jpg?raw=true "Divider")
 
