@@ -1,4 +1,4 @@
-package Debug::Easy 2.26;
+package Debug::Easy 2.27;
 
 use strict;
 # use warnings;
