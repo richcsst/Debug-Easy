@@ -108,9 +108,11 @@
 
 ![Divider](pics/pink.jpg?raw=true "Divider")
 
-## LICENSE AND COPYRIGHT
+## COPYRIGHT
 
    Copyright © 2013-2026 Richard Kelsch
+
+## LICENSE
 
    This program is free software; you can redistribute it and/or modify it under the terms of the the Artistic License (2.0). You may obtain a copy of the full license at:
 
