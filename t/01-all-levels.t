@@ -9,17 +9,19 @@ BEGIN {
     use_ok('Debug::Easy') || print "Bail out! Can't load Debug::Easy!\n";
 }
 
-diag("\n\r" . colored(['yellow'], "\e[4m                                    "));
-diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{ _______        _   _              }) . colored(['yellow'], '◣'));
-diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{|__   __|      | | (_)             }) . colored(['yellow'], '█'));
-diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{   | | ___  ___| |_ _ _ __   __ _  }) . colored(['yellow'], '█'));
-diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{   | |/ _ \/ __| __| | '_ \ / _` | }) . colored(['yellow'], '█'));
-diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{   | |  __/\__ \ |_| | | | | (_| | }) . colored(['yellow'], '█'));
-diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{   |_|\___||___/\__|_|_| |_|\__, | }) . colored(['yellow'], '█'));
-diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{                             __/ | }) . colored(['yellow'], '█'));
-diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{ Debug::Easy                |___/  }) . colored(['yellow'], '█'));
-diag("\r" . colored(['yellow'], '▏                                   ') . colored(['yellow'], '█'));
-diag("\r" . colored(['yellow'], '◥' . '█' x 36));
+diag("\n\r" . colored(['yellow'], "\e[4m                                                                  "));
+diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{888888888888                         88                          }) . colored(['yellow'], '◣'));
+diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{     88                        ,d    ""                          }) . colored(['yellow'], '█'));
+diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{     88                        88                                }) . colored(['yellow'], '█'));
+diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{     88  ,adPPYba, ,adPPYba, MM88MMM 88 8b,dPPYba,   ,adPPYb,d8  }) . colored(['yellow'], '█'));
+diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{     88 a8P_____88 I8[    ""   88    88 88P'   `"8a a8"    `Y88  }) . colored(['yellow'], '█'));
+diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{     88 8PP"""""""  `"Y8ba,    88    88 88       88 8b       88  }) . colored(['yellow'], '█'));
+diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{     88 "8b,   ,aa aa    ]8I   88,   88 88       88 "8a,   ,d88  }) . colored(['yellow'], '█'));
+diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{     88  `"Ybbd8"' `"YbbdP"'   "Y888 88 88       88  `"YbbdP"Y8  }) . colored(['yellow'], '█'));
+diag("\r" . colored(['yellow'], '▏') . colored(['cyan on_black'], q{                                                     aa,    ,88  }) . colored(['yellow'], '█'));
+diag("\r" . colored(['yellow'], '▏') . ' Debug::Easy' . colored(['cyan on_black'], q{                                          "Y8bbdP"   }) . colored(['yellow'], '█'));
+# diag("\r" . colored(['yellow'], '▏                                                                 ') . colored(['yellow'], '█'));
+diag("\r" . colored(['yellow'], '◥' . '█' x 66));
 diag("\r  \r");
 
 my @LogLevel  = qw( ERR WARN NOTICE INFO DEBUG DEBUGMAX );
