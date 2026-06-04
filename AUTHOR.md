@@ -13,9 +13,9 @@ I am a Perl Programmer and Linux System Administrator by profession.  I speciali
 # RICHARD KELSCH
 
 **Sandy, UT**
-**LinkedIn** - https://www.linkedin.com/in/richardkelsch/
-**GitHub** - https://github.com/richcsst
-**MetaCPAN** - https://metacpan.org/author/RKELSCH
+* **LinkedIn** - https://www.linkedin.com/in/richardkelsch/
+* **GitHub** - https://github.com/richcsst
+* **MetaCPAN** - https://metacpan.org/author/RKELSCH
 
 ## PROFESSIONAL SUMMARY
 
